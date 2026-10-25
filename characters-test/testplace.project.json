@@ -384,6 +384,12 @@
           "$path": "src/client"
         }
       }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "Dev": {
+        "$path": "src/dev"
+      }
     }
   }
 }

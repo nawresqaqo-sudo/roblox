@@ -99,6 +99,7 @@ local Tuning = {
 		Knockback = 120,
 		Stun = 1.5,
 		SkyTime = 4.2, -- how long the sky stays black
+		LandAnimationId = "", -- optional published animation for the landing (move 4's main one is in Info)
 	},
 	Asura = {
 		LockRange = 35,

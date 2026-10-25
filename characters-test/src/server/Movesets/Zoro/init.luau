@@ -340,6 +340,7 @@ local function dragonDamnation(ctx: MoveContext)
 		releaseTarget()
 	end
 	local direction = if flatten(offset).Magnitude > 0.1 then flatten(offset).Unit else flatLook(ctx.root)
+	Animations.play(ctx.humanoid, t.LandAnimationId)
 	Vfx.play("Zoro.DragonDamnationImpact", { caster = ctx.character, position = aim, direction = direction })
 	for _, victim in Hitbox.sphere(aim, t.Radius, ignoreList(ctx)) do
 		local away = flatten(victim:GetPivot().Position - aim)

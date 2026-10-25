@@ -422,6 +422,48 @@ function AnimeFx.darkSky(duration: number, tint: Color3, glow: Color3?)
 	end)
 end
 
+-- Your own effects ---------------------------------------------------------------------------------
+-- Effects made in Sine VFX or any VFX plugin live in ReplicatedStorage > Assets > VFX. Bursts (emitters
+-- with Rate 0) are emitted once; set an "EmitCount" attribute on an emitter to change the amount.
+
+-- Plays the custom effect called `name` at `cframe`. False if there isn't one.
+function AnimeFx.custom(name: string, cframe: CFrame, lifetime: number?): boolean
+	return VfxUtil.burstAsset(name, cframe, lifetime or 3)
+end
+
+-- Plays the custom effect called `name`, moving it to getCFrame() every frame for `duration` seconds.
+-- Returns a stop function, or nil if there's no such effect.
+function AnimeFx.customFollow(name: string, getCFrame: () -> CFrame?, duration: number): (() -> ())?
+	local copy = VfxUtil.asset(name)
+	if not copy then
+		return nil
+	end
+	local first = getCFrame()
+	if first then
+		VfxUtil.pivot(copy, first)
+	end
+	VfxUtil.emit(copy)
+	return VfxUtil.everyFrame(duration, function()
+		local cframe = getCFrame()
+		if not cframe then
+			return false
+		end
+		VfxUtil.pivot(copy, cframe)
+		return true
+	end, function()
+		for _, instance in copy:GetDescendants() do
+			if instance:IsA("ParticleEmitter") then
+				instance.Enabled = false
+			elseif instance:IsA("Beam") then
+				instance.Enabled = false
+			elseif instance:IsA("Trail") then
+				instance.Enabled = false
+			end
+		end
+		Debris:AddItem(copy, 2)
+	end)
+end
+
 -- On characters ------------------------------------------------------------------------------------
 
 -- A glowing ghost copy of the character that fades where it stands (dash smears).

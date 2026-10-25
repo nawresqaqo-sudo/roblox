@@ -37,16 +37,48 @@ training dummies.
 **Into a place you already have open:** install the Rojo plugin and Rojo 7.4, then in a terminal
 in this folder run `rojo serve` and click **Connect** in the plugin.
 
-## Using Sine VFX and Eclipse Animator
+## Upgrading with Eclipse Animator and Sine VFX
 
-Those plugins run inside Studio on your computer, so they plug in like this:
+Those plugins run inside Studio on your computer, so the game is set up to take their work directly.
 
-- **Animations (Eclipse/Moon Animator):** animate on an R15 rig, publish, and paste the id into that
-  move's `AnimationId` in `src/shared/Characters/Zoro.luau`. The server plays it and the coded clip
-  for that move is skipped.
-- **VFX (Sine VFX or any plugin):** effects you make can go in `ReplicatedStorage > Assets > VFX`;
-  `Util/VfxUtil.asset(name)` finds them by name. To swap one into a move, call it from that move's
-  function in `src/client/Vfx/Zoro.luau`.
+### Animations (Eclipse Animator, Moon Animator or Roblox's Animation Editor)
+
+Every coded animation can be turned into a real, editable Roblox animation:
+
+1. Open the place in Studio (don't press Play). In the command bar (View > Command Bar), run:
+   `require(game.ServerStorage.Dev.ExportAnimations)()`
+2. A rig called **ZoroAnimRig** appears with all six animations in its **AnimSaves**:
+   `Zoro_Onigiri`, `Zoro_BirdDance`, `Zoro_DragonTwister`, `Zoro_DragonDamnation`,
+   `Zoro_DragonDamnationLand`, `Zoro_Asura`. To use your own R15 rig instead, run
+   `require(game.ServerStorage.Dev.ExportAnimations)(workspace.YourRig)`.
+3. Select the rig in Eclipse Animator, load an animation, polish it, and publish it to Roblox.
+4. Paste the id into that move's `AnimationId` in `src/shared/Characters/Zoro.luau` (the landing of
+   move 4 goes in `Tuning.DragonDamnation.LandAnimationId`). The game then plays your animation and
+   skips the coded one for that move.
+
+Animations only play in games owned by the account or group that published them.
+
+### Effects (Sine VFX or any VFX plugin)
+
+Build an effect, name it after one of these slots, and put it in **ReplicatedStorage > Assets > VFX**.
+It plays at that moment of the move automatically:
+
+| Slot name | When / where |
+| --- | --- |
+| `Zoro_OnigiriCharge` | follows Zoro during the Onigiri crouch |
+| `Zoro_OnigiriCut` | on each target when the Onigiri cut lands |
+| `Zoro_BirdDanceRelease` | in front of Zoro as he swings |
+| `Zoro_BirdDanceSlash` | flies along with the slash |
+| `Zoro_DragonTwister` | follows Zoro while he spins |
+| `Zoro_DamnationCharge` | follows Zoro from the charge up into the sky |
+| `Zoro_DamnationImpact` | at the Dragon Damnation landing |
+| `Zoro_AsuraCharge` | follows Zoro while Asura forms |
+| `Zoro_AsuraCut` | on each target when the nine cuts burst |
+| `Impact` | every normal hit |
+
+Burst emitters (Rate 0) are emitted once; set an `EmitCount` attribute on an emitter to change the
+amount. Your effects play next to the built-in ones; set `REPLACE_BUILT_IN = true` at the top of
+`src/client/Vfx/Zoro.luau` to hide the built-in effect wherever you've added your own.
 
 ## Tuning
 

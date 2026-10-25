@@ -28,6 +28,15 @@ local WHITE = Color3.new(1, 1, 1)
 local NEAR = 120 -- impact frames and big shakes only for players this close
 local SKY_RANGE = 300 -- the sky goes dark for players this close
 
+-- Your own effects (Sine VFX or any VFX plugin): put an effect in ReplicatedStorage > Assets > VFX
+-- named after one of these slots and it plays at that moment of the move, next to the built-in one.
+-- Set REPLACE_BUILT_IN to true to hide the built-in effect for every slot you've filled.
+--   Zoro_OnigiriCharge (follows Zoro)   Zoro_OnigiriCut (on each target)
+--   Zoro_BirdDanceRelease               Zoro_BirdDanceSlash (flies with the slash)
+--   Zoro_DragonTwister (follows Zoro)   Zoro_DamnationCharge (follows Zoro into the sky)
+--   Zoro_DamnationImpact                Zoro_AsuraCharge (follows Zoro)   Zoro_AsuraCut (on each target)
+local REPLACE_BUILT_IN = false
+
 local Zoro: { [string]: VfxUtil.Handler } = {}
 
 type Dragon = {
@@ -55,6 +64,19 @@ end
 local function nearCamera(position: Vector3, range: number): boolean
 	local camera = workspace.CurrentCamera
 	return camera ~= nil and (camera.Focus.Position - position).Magnitude < range
+end
+
+-- Plays a custom effect for `name` at `cframe` if you made one. True means skip the built-in effect.
+local function slot(name: string, cframe: CFrame): boolean
+	return AnimeFx.custom(name, cframe) and REPLACE_BUILT_IN
+end
+
+-- Like slot, but the custom effect follows `part` for `duration` seconds.
+local function slotOn(name: string, part: BasePart, duration: number): boolean
+	local stop = AnimeFx.customFollow(name, function()
+		return if part.Parent then part.CFrame else nil
+	end, duration)
+	return stop ~= nil and REPLACE_BUILT_IN
 end
 
 -- Plays the coded clip unless a real animation id was set for that move.
@@ -97,8 +119,9 @@ function Zoro.Onigiri(payload: VfxUtil.Payload): (() -> ())?
 	animate(character, 1, Clips.Onigiri)
 
 	-- A glint across the crossed blades just before he goes.
+	local skipGlint = slotOn("Zoro_OnigiriCharge", rootPart, windup)
 	task.delay(windup * 0.55, function()
-		if rootPart.Parent then
+		if rootPart.Parent and not skipGlint then
 			local front = rootPart.CFrame * CFrame.new(0, 0.8, -1.4)
 			AnimeFx.flash(front.Position, GREEN, 3, 0.18)
 			AnimeFx.slash(
@@ -140,6 +163,9 @@ function Zoro.OnigiriCut(payload: VfxUtil.Payload): (() -> ())?
 	local direction = payload.direction :: Vector3
 	for _, position in positions do
 		local face = CFrame.lookAt(position, position + direction)
+		if slot("Zoro_OnigiriCut", face) then
+			continue
+		end
 		for _, angle in { -0.65, 0, 0.65 } do
 			AnimeFx.slash(face * CFrame.Angles(0, 0, angle) * CFrame.new(0, -2.5, 0), 4.5, {
 				color = GREEN,
@@ -182,6 +208,9 @@ function Zoro.BirdDance(payload: VfxUtil.Payload): (() -> ())?
 	task.delay(windup, function()
 		if rootPart.Parent then
 			local front = rootPart.CFrame * CFrame.new(0, 0.5, -2.5)
+			if slot("Zoro_BirdDanceRelease", front) then
+				return
+			end
 			AnimeFx.slash(
 				CFrame.fromMatrix(front.Position, front.RightVector, front.LookVector),
 				6,
@@ -199,6 +228,14 @@ function Zoro.BirdDanceSlash(payload: VfxUtil.Payload): (() -> ())?
 	local direction = payload.direction :: Vector3
 	local speed = payload.speed :: number
 	local maxTime = payload.maxTime :: number
+	local start = os.clock()
+	local stopCustom = AnimeFx.customFollow("Zoro_BirdDanceSlash", function()
+		local position = origin + direction * speed * math.min(os.clock() - start, maxTime)
+		return CFrame.lookAt(position, position + direction)
+	end, maxTime)
+	if stopCustom and REPLACE_BUILT_IN then
+		return stopCustom
+	end
 	local stopSlash = AnimeFx.flyingSlash(origin, direction, speed, maxTime, 7, { color = CRIMSON, width = 1.3 })
 	local stopCrackle = VfxUtil.everyFrame(maxTime, function(t)
 		if math.random() < 0.5 then
@@ -216,6 +253,9 @@ function Zoro.BirdDanceSlash(payload: VfxUtil.Payload): (() -> ())?
 	return function()
 		stopSlash()
 		stopCrackle()
+		if stopCustom then
+			stopCustom()
+		end
 	end
 end
 
@@ -234,6 +274,9 @@ function Zoro.DragonTwister(payload: VfxUtil.Payload): (() -> ())?
 
 	task.delay(windup, function()
 		if not rootPart.Parent then
+			return
+		end
+		if slotOn("Zoro_DragonTwister", rootPart, duration) then
 			return
 		end
 		AnimeFx.aura(rootPart, BLACK, GREEN, duration, 3)
@@ -439,7 +482,9 @@ function Zoro.DragonDamnation(payload: VfxUtil.Payload): (() -> ())?
 	task.delay(total + 0.8, function()
 		Swords.setHaki(character, false)
 	end)
-	AnimeFx.aura(torso, PURPLE, CRIMSON, total, 3)
+	if not slotOn("Zoro_DamnationCharge", rootPart, charge + rise + hover) then
+		AnimeFx.aura(torso, PURPLE, CRIMSON, total, 3)
+	end
 	AnimeFx.outline(character, CRIMSON, total)
 
 	-- The sky goes black and red lightning comes down everywhere.
@@ -543,11 +588,20 @@ function Zoro.DragonDamnationImpact(payload: VfxUtil.Payload): (() -> ())?
 			dragons[caster] = nil
 			dragon.destroy()
 		end
-		MoveAnimator.play(caster, Clips.DragonDamnationLand)
+		if ZoroData.Tuning.DragonDamnation.LandAnimationId == "" then
+			animate(caster, 4, Clips.DragonDamnationLand)
+		end
 	end
 
 	local ground = position - Vector3.new(0, 2.7, 0)
 	local face = CFrame.lookAt(position, position + direction)
+	if nearCamera(position, NEAR) then
+		AnimeFx.impactFrame(1.4)
+		VfxUtil.shake(1.2, 0.7)
+	end
+	if slot("Zoro_DamnationImpact", face) then
+		return nil
+	end
 	AnimeFx.flash(position, CRIMSON, 34, 0.5)
 	AnimeFx.flash(position, WHITE, 18, 0.25)
 	for _, angle in { -0.8, 0, 0.8 } do
@@ -584,11 +638,6 @@ function Zoro.DragonDamnationImpact(payload: VfxUtil.Payload): (() -> ())?
 	task.delay(4, function()
 		VfxUtil.fadeOut({ crater }, 1)
 	end)
-
-	if nearCamera(position, NEAR) then
-		AnimeFx.impactFrame(1.4)
-		VfxUtil.shake(1.2, 0.7)
-	end
 	return nil
 end
 
@@ -814,7 +863,9 @@ function Zoro.Asura(payload: VfxUtil.Payload): (() -> ())?
 	end)
 	asuraForm(character, total)
 	asuraDemon(rootPart, charge + 0.3)
-	AnimeFx.aura(torso, BLACK, GREEN, total, 3.2)
+	if not slotOn("Zoro_AsuraCharge", rootPart, charge) then
+		AnimeFx.aura(torso, BLACK, GREEN, total, 3.2)
+	end
 	AnimeFx.outline(character, GREEN, total)
 	if nearCamera(rootPart.Position, SKY_RANGE) then
 		AnimeFx.darkSky(charge + 1.6, Color3.fromRGB(180, 255, 210), Color3.fromRGB(16, 70, 40))
@@ -882,6 +933,9 @@ function Zoro.AsuraCut(payload: VfxUtil.Payload): (() -> ())?
 			end)
 		end
 		task.delay(delay, function()
+			if slot("Zoro_AsuraCut", face) then
+				return
+			end
 			AnimeFx.flash(position, GREEN, 30, 0.5)
 			AnimeFx.flash(position, WHITE, 14, 0.25)
 			AnimeFx.shockwave(across(position, direction), GREEN, 45, 0.6)

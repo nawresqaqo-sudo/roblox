@@ -20,4 +20,5 @@
 - `characters-test/` is a separate Rojo project (own default/testplace project files, `tools/build_map.py`,
   `build/CharactersTest.rbxl`): JJS-style arena, Zoro (Onigashima) with 5 moves. Coded keyframe clips
   (`Controllers/MoveAnimator`, `Animations/<Char>`), client swords (`Controllers/Swords`), anime VFX
-  pieces in `Util/AnimeFx`. Run the same checks from inside that folder.
+  pieces in `Util/AnimeFx`. Run the same checks from inside that folder. Plugin bridges: `src/dev/ExportAnimations`
+  (ServerStorage.Dev; clips -> KeyframeSequences in a rig's AnimSaves) and named VFX slots in `Vfx/Zoro`.

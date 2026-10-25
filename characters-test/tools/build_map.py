@@ -57,6 +57,8 @@ code = {
     "ServerScriptService": {"$className": "ServerScriptService", "Server": {"$path": "src/server"}},
     "StarterPlayer": {"$className": "StarterPlayer", "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts", "Client": {"$path": "src/client"}}},
+    # Studio-only tools, e.g. the animation exporter (never sent to players).
+    "ServerStorage": {"$className": "ServerStorage", "Dev": {"$path": "src/dev"}},
 }
 lighting = {
     "$className": "Lighting",

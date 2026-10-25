@@ -84,7 +84,8 @@ function MoveAnimator.setIdlePose(character: Model, pose: Rig.Pose?)
 	getTrack(character).idle = pose
 end
 
-local function sample(clip: Clip, t: number, name: string): CFrame
+-- A joint's pose in `clip` at time `t` (used for playback and by the animation exporter).
+function MoveAnimator.sample(clip: Clip, t: number, name: string): CFrame
 	local frames = clip.keyframes
 	local previous = frames[1]
 	if t <= previous.time then
@@ -150,7 +151,7 @@ local function update(dt: number)
 				transform = transform:Lerp(Rig.toJointSpace(joint, idlePose), track.idleWeight)
 			end
 			if clip and playing and playing.joints[name] and weight > 0 then
-				local pose = sample(clip, t, name)
+				local pose = MoveAnimator.sample(clip, t, name)
 				local spin = clip.spin
 				if name == "Root" and spin then
 					pose = CFrame.Angles(0, spin.rate * math.clamp(t - spin.from, 0, spin.to - spin.from), 0) * pose
