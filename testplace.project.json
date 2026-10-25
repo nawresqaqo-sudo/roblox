@@ -26,15 +26,173 @@
         "$className": "Part",
         "$properties": {
           "Anchored": true,
-          "Size": [56, 90, 56],
+          "Size": [56, 156, 56],
           "Color": [0.55, 0.33, 0.28],
           "Material": "Brick",
           "CFrame": {
             "CFrame": {
-              "position": [0, 51, 0],
+              "position": [0, 18.0, 0],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           }
+        }
+      },
+      "SpawnEdgeN": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [60, 0.1, 0.6],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 100.05, -29.7],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "SpawnEdgeS": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [60, 0.1, 0.6],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 100.05, 29.7],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "SpawnEdgeW": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [0.6, 0.1, 60],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [-29.7, 100.05, 0],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "SpawnEdgeE": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [0.6, 0.1, 60],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [29.7, 100.05, 0],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "MainRoof": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [110, 4, 110],
+          "Color": [0.36, 0.36, 0.4],
+          "Material": "Concrete",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 98, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "MainBuilding": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [106, 156, 106],
+          "Color": [0.45, 0.42, 0.4],
+          "Material": "Brick",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 18.0, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "MainEdgeN": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [110, 0.1, 0.6],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 100.05, -183.7],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "MainEdgeS": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [110, 0.1, 0.6],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 100.05, -74.3],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "MainEdgeW": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [0.6, 0.1, 110],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [-54.7, 100.05, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
+        }
+      },
+      "MainEdgeE": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [0.6, 0.1, 110],
+          "Color": [1, 0.35, 0.15],
+          "Material": "Neon",
+          "CFrame": {
+            "CFrame": {
+              "position": [54.7, 100.05, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "CanCollide": false
         }
       },
       "SpawnLocation": {
@@ -69,36 +227,6 @@
           }
         }
       },
-      "MainRoof": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Size": [110, 4, 110],
-          "Color": [0.42, 0.42, 0.46],
-          "Material": "Concrete",
-          "CFrame": {
-            "CFrame": {
-              "position": [0, 98, -129],
-              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-            }
-          }
-        }
-      },
-      "MainBuilding": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Size": [106, 90, 106],
-          "Color": [0.55, 0.33, 0.28],
-          "Material": "Brick",
-          "CFrame": {
-            "CFrame": {
-              "position": [0, 51, -129],
-              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-            }
-          }
-        }
-      },
       "AirConditionerA": {
         "$className": "Part",
         "$properties": {
@@ -108,7 +236,7 @@
           "Material": "Metal",
           "CFrame": {
             "CFrame": {
-              "position": [28, 102.5, -112],
+              "position": [28, 102.5, -108],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           }
@@ -123,7 +251,68 @@
           "Material": "Metal",
           "CFrame": {
             "CFrame": {
-              "position": [-32, 102.5, -152],
+              "position": [-34, 102.5, -150],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "Stairwell": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [12, 9, 10],
+          "Color": [0.62, 0.62, 0.65],
+          "Material": "Concrete",
+          "CFrame": {
+            "CFrame": {
+              "position": [-32, 104.5, -100],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "WaterTank": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [9, 9, 9],
+          "Color": [0.45, 0.32, 0.22],
+          "Material": "Wood",
+          "CFrame": {
+            "CFrame": {
+              "position": [30, 104.5, -160],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "Shape": "Cylinder"
+        }
+      },
+      "CrateA": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [4, 4, 4],
+          "Color": [0.7, 0.55, 0.35],
+          "Material": "Wood",
+          "CFrame": {
+            "CFrame": {
+              "position": [8, 102, -150],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "CrateB": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [4, 4, 4],
+          "Color": [0.7, 0.55, 0.35],
+          "Material": "Wood",
+          "CFrame": {
+            "CFrame": {
+              "position": [12, 102, -147],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           }
@@ -162,7 +351,7 @@
             "Size": [2, 1, 2],
             "CFrame": {
               "CFrame": {
-                "position": [0, 100.5, -112],
+                "position": [0, 100.5, -115],
                 "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
               }
             }
@@ -179,7 +368,7 @@
             "Size": [2, 1, 2],
             "CFrame": {
               "CFrame": {
-                "position": [-22, 100.5, -140],
+                "position": [-20, 100.5, -140],
                 "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
               }
             }
@@ -196,10 +385,708 @@
             "Size": [2, 1, 2],
             "CFrame": {
               "CFrame": {
-                "position": [24, 100.5, -165],
+                "position": [24, 100.5, -170],
                 "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
               }
             }
+          }
+        }
+      },
+      "Street": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [1600, 2, 1600],
+          "Color": [0.18, 0.18, 0.2],
+          "Material": "Asphalt",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, -61, -60],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "Skyline": {
+        "$className": "Model",
+        "Building0": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [56, 60, 33],
+            "Color": [0.28, 0.3, 0.34],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-148, -29.8, -384],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building1": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [39, 56, 33],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [70, -32.1, 299],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building2": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [63, 48, 35],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-344, -35.8, -138],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building3": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [46, 42, 69],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [376, -39.1, -1],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building4": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [35, 71, 42],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-177, -24.5, -390],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building5": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [38, 67, 34],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-333, -26.5, -6],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building6": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [57, 52, 47],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-370, -34.0, -335],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building7": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [40, 70, 37],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [356, -25.2, -195],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building8": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [42, 44, 69],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [315, -37.8, 137],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building9": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [67, 77, 47],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-281, -21.7, -212],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building10": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [65, 66, 43],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [222, -26.8, -4],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building11": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [33, 50, 34],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-3, -34.9, 197],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building12": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [56, 71, 70],
+            "Color": [0.28, 0.3, 0.34],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-369, -24.4, 111],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building13": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [44, 54, 68],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [182, -33.2, 278],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building14": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [61, 49, 35],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-322, -35.3, -467],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building15": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [37, 51, 46],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [350, -34.7, -73],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building16": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [41, 54, 47],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [268, -33.2, 258],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building17": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [37, 49, 39],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [384, -35.6, -384],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building18": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [41, 60, 36],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [278, -29.8, -356],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building19": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [58, 63, 51],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [56, -28.3, 338],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building20": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [68, 61, 57],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-36, -29.4, 264],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building21": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [55, 43, 32],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-85, -38.7, -427],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building22": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [54, 62, 34],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-50, -29.2, -421],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building23": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [31, 63, 65],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-335, -28.3, -193],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building24": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [54, 44, 49],
+            "Color": [0.6, 0.55, 0.5],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [113, -37.8, 340],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building25": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [49, 44, 33],
+            "Color": [0.28, 0.3, 0.34],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [414, -38.1, -101],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building26": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [58, 48, 51],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [202, -36.1, -89],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building27": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [67, 51, 60],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-116, -34.3, 101],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building28": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [45, 69, 37],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [165, -25.3, -285],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building29": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [62, 47, 60],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [115, -36.3, 32],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building30": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [39, 54, 51],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [267, -33.2, 146],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building31": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [49, 63, 38],
+            "Color": [0.28, 0.3, 0.34],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [411, -28.5, 191],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building32": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [70, 54, 68],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-44, -33.1, 323],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building33": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [44, 77, 49],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-334, -21.3, -97],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building34": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [56, 43, 62],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [286, -38.4, -88],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building35": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [60, 47, 49],
+            "Color": [0.28, 0.3, 0.34],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [344, -36.6, 184],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building36": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [59, 68, 49],
+            "Color": [0.32, 0.36, 0.45],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-347, -25.9, 332],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building37": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [35, 74, 36],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [189, -22.8, -367],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building38": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [49, 46, 67],
+            "Color": [0.4, 0.25, 0.25],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [94, -37.0, 16],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
+          }
+        },
+        "Building39": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [69, 60, 56],
+            "Color": [0.5, 0.42, 0.36],
+            "Material": "Concrete",
+            "CFrame": {
+              "CFrame": {
+                "position": [-310, -30.0, -507],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            },
+            "CanCollide": false,
+            "CastShadow": false
           }
         }
       }
@@ -207,7 +1094,19 @@
     "Lighting": {
       "$className": "Lighting",
       "$properties": {
-        "ClockTime": 17.2
+        "ClockTime": 17.4,
+        "Brightness": 2.5
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.32,
+          "Offset": 0.15,
+          "Haze": 1.4,
+          "Glare": 0.5,
+          "Color": [0.85, 0.72, 0.62],
+          "Decay": [0.55, 0.42, 0.4]
+        }
       }
     },
     "Players": {

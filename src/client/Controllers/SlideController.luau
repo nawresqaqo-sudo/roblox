@@ -20,8 +20,6 @@ local HOLD_KEYS: { [Enum.KeyCode]: boolean } = {
 }
 local PRESS_BUFFER = 0.4 -- pressing just before you land still starts a slide
 local AIR_GRACE = 0.15 -- in the air longer than this ends the slide (you keep your momentum)
-local CAMERA_DROP = 1.2
-local FOV_BOOST = 8
 
 local SlideController = {}
 
@@ -32,6 +30,7 @@ local pressedAt = -math.huge
 local slidSincePress = false
 
 local sliding = false
+local slides = 0
 local slideStart = 0
 local slideSpeed = 0
 local slideDirection = Vector3.new(0, 0, -1)
@@ -43,10 +42,6 @@ local slideAttachment: Attachment? = nil
 local slideVelocity: LinearVelocity? = nil
 local slideAlign: AlignOrientation? = nil
 
-local cameraDrop = 0
-local fovBoost = 0
-local baseFov = 70
-
 local overlapParams = OverlapParams.new()
 overlapParams.FilterType = Enum.RaycastFilterType.Exclude
 
@@ -56,6 +51,19 @@ end
 
 function SlideController.isDown(): boolean
 	return os.clock() < downUntil
+end
+
+-- How many slides this player has done (the HUD hides its hint after a few).
+function SlideController.slideCount(): number
+	return slides
+end
+
+-- 0-1: how fast the current slide still is compared to its starting speed.
+function SlideController.intensity(): number
+	if not sliding then
+		return 0
+	end
+	return math.clamp(slideSpeed / Config.Slide.StartSpeed, 0, 1)
 end
 
 local function getCharacter(): (Model?, Humanoid?, BasePart?)
@@ -121,6 +129,7 @@ local function startSlide()
 	end
 
 	sliding = true
+	slides += 1
 	slidSincePress = true
 	slideStart = now
 	slideDirection = direction
@@ -215,35 +224,6 @@ local function update(dt: number)
 	checkHits(character, root)
 end
 
--- Lower camera and a wider view while sliding, for a sense of speed.
-local function updateCamera(dt: number)
-	local camera = workspace.CurrentCamera
-	local alpha = math.min(1, dt * 10)
-
-	local fovGoal = if sliding then FOV_BOOST else 0
-	if camera and fovBoost ~= fovGoal then
-		if fovBoost == 0 then
-			baseFov = camera.FieldOfView
-		end
-		fovBoost += (fovGoal - fovBoost) * alpha
-		if math.abs(fovBoost - fovGoal) < 0.05 then
-			fovBoost = fovGoal
-		end
-		camera.FieldOfView = baseFov + fovBoost
-	end
-
-	local dropGoal = if sliding then -CAMERA_DROP else 0
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if humanoid and cameraDrop ~= dropGoal then
-		cameraDrop += (dropGoal - cameraDrop) * alpha
-		if math.abs(cameraDrop - dropGoal) < 0.01 then
-			cameraDrop = dropGoal
-		end
-		humanoid.CameraOffset = Vector3.new(0, cameraDrop, 0)
-	end
-end
-
 local function onKnockback(velocity: unknown, downTime: unknown)
 	if typeof(velocity) ~= "Vector3" or typeof(downTime) ~= "number" then
 		return
@@ -293,12 +273,10 @@ function SlideController.start()
 		sliding = false
 		slideAttachment, slideVelocity, slideAlign = nil, nil, nil
 		downUntil = 0
-		cameraDrop = 0
 	end)
 
 	Net.remote("Knockback").OnClientEvent:Connect(onKnockback)
 	RunService.Heartbeat:Connect(update)
-	RunService.RenderStepped:Connect(updateCamera)
 end
 
 return SlideController

@@ -1,42 +1,75 @@
 --!strict
--- The KO scoreboard. Anyone who falls into the void dies, and whoever slid into them last gets the KO.
+-- KOs and streaks. Anyone who falls into the void dies, and whoever slid into them last gets the KO.
 -- The void is just above Workspace.FallenPartsDestroyHeight, so set that below your islands.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Net = require(ReplicatedStorage.Shared.Net)
 
 -- Kill this far above FallenPartsDestroyHeight, before Roblox deletes the character, so the KO counts.
 local VOID_MARGIN = 25
 
 local KnockoutService = {}
 
-local function creditKnockout(victim: Model)
+local function stat(player: Player, name: string): IntValue?
+	local stats = player:FindFirstChild("leaderstats")
+	local value = stats and stats:FindFirstChild(name)
+	if value and value:IsA("IntValue") then
+		return value
+	end
+	return nil
+end
+
+local function lastHitter(victim: Model, victimPlayer: Player?): Player?
 	local attackerId = victim:GetAttribute("LastHitBy")
 	local hitTime = victim:GetAttribute("LastHitTime")
 	if typeof(attackerId) ~= "number" or typeof(hitTime) ~= "number" then
-		return
+		return nil
 	end
 	if os.clock() - hitTime > Config.KnockoutCreditTime then
-		return
+		return nil
 	end
 	local attacker = Players:GetPlayerByUserId(attackerId)
-	if not attacker or attacker == Players:GetPlayerFromCharacter(victim) then
-		return
+	if attacker == victimPlayer then
+		return nil
 	end
-	local stats = attacker:FindFirstChild("leaderstats")
-	local kos = stats and stats:FindFirstChild("KOs")
-	if kos and kos:IsA("IntValue") then
-		kos.Value += 1
-	end
+	return attacker
 end
 
--- Starts tracking a character (player or NPC) for KO credit.
+local function onDied(victim: Model)
+	local victimPlayer = Players:GetPlayerFromCharacter(victim)
+	local victimName = if victimPlayer then victimPlayer.DisplayName else victim.Name
+	if victimPlayer then
+		local victimStreak = stat(victimPlayer, "Streak")
+		if victimStreak then
+			victimStreak.Value = 0
+		end
+	end
+
+	local attacker = lastHitter(victim, victimPlayer)
+	local streak = 0
+	if attacker then
+		local kos = stat(attacker, "KOs")
+		local attackerStreak = stat(attacker, "Streak")
+		if kos then
+			kos.Value += 1
+		end
+		if attackerStreak then
+			attackerStreak.Value += 1
+			streak = attackerStreak.Value
+		end
+	end
+	-- Clients use this for the KO feed and popups. attacker is nil when someone just fell.
+	Net.remote("Knockout"):FireAllClients(attacker, victimName, victimPlayer, streak)
+end
+
+-- Starts tracking a character (player or NPC) for KOs.
 function KnockoutService.watch(character: Model)
 	local humanoid = character:WaitForChild("Humanoid", 10)
 	if humanoid and humanoid:IsA("Humanoid") then
 		humanoid.Died:Connect(function()
-			creditKnockout(character)
+			onDied(character)
 		end)
 	end
 end
@@ -52,9 +85,11 @@ end
 local function onPlayerAdded(player: Player)
 	local stats = Instance.new("Folder")
 	stats.Name = "leaderstats"
-	local kos = Instance.new("IntValue")
-	kos.Name = "KOs"
-	kos.Parent = stats
+	for _, name in { "KOs", "Streak" } do
+		local value = Instance.new("IntValue")
+		value.Name = name
+		value.Parent = stats
+	end
 	stats.Parent = player
 
 	player.CharacterAdded:Connect(KnockoutService.watch)

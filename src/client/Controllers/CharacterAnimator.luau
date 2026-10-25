@@ -1,17 +1,21 @@
 --!strict
--- Custom run and slide animations, made in code instead of uploaded animation assets.
--- Every client animates every character this way, so everyone sees them on everyone.
--- Works on R15 (full body) and R6 (no elbows, knees or waist on that rig).
+-- Custom animations made in code instead of uploaded animation assets: a sprint, a feet-first slide,
+-- and a flail when you get launched. Characters lean into turns. Sliding characters get a dust
+-- trail, a speed streak and a wind sound. Every client animates every character this way, so
+-- everyone sees it on everyone. Works on R15 (full body) and R6 (no elbows, knees or waist).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local Sfx = require(script.Parent.Parent:WaitForChild("Util"):WaitForChild("Sfx"))
 local SlideController = require(script.Parent.SlideController)
 
 local TAU = math.pi * 2
 local DUST_TEXTURE = "rbxasset://textures/particles/smoke_main.dds"
 local RESCAN_INTERVAL = 0.5
+local FLAIL_SPEED = 16 -- radians per second of arm windmilling
+local FALLING_FLAIL_SPEED = -45 -- falling faster than this makes anyone flail
 
 type Joint = {
 	motor: Motor6D,
@@ -20,7 +24,8 @@ type Joint = {
 }
 
 -- Joint name -> how that joint should be rotated, in its parent part's space.
--- +X swings a limb forward (or bends an elbow); -X leans a torso forward (or bends a knee).
+-- +X swings a limb forward (or bends an elbow); -X leans a torso forward (or bends a knee);
+-- +Z on the Root leans the body left.
 type Pose = { [string]: CFrame }
 
 type Rig = {
@@ -32,9 +37,16 @@ type Rig = {
 	isLocal: boolean,
 	run: number,
 	slide: number,
+	flail: number,
 	phase: number,
-	dustAttachment: Attachment,
+	flailPhase: number,
+	bank: number,
+	lastLook: Vector3,
+	wasSliding: boolean,
 	dust: ParticleEmitter,
+	trail: Trail,
+	wind: Sound?,
+	extras: { Instance },
 }
 
 -- Joint name -> { part holding the Motor6D, Motor6D name }
@@ -60,29 +72,16 @@ local R6_JOINTS: { [string]: { string } } = {
 	RightHip = { "Torso", "Right Hip" },
 }
 
--- Feet-first slide: body dropped low and leaning back, lead leg out, back leg tucked, one hand down.
-local SLIDE_POSE: Pose = {
-	Root = CFrame.new(0, -1.1, 0) * CFrame.Angles(1.15, 0, 0),
-	Waist = CFrame.Angles(-0.35, 0, 0),
-	Neck = CFrame.Angles(-0.5, 0, 0),
-	RightHip = CFrame.Angles(0.25, 0, 0),
-	RightKnee = CFrame.Angles(-0.1, 0, 0),
-	LeftHip = CFrame.Angles(0.75, 0, -0.15),
-	LeftKnee = CFrame.Angles(-1.6, 0, 0),
-	LeftShoulder = CFrame.Angles(-0.7, 0, -0.7),
-	LeftElbow = CFrame.Angles(0.3, 0, 0),
-	RightShoulder = CFrame.Angles(1.8, 0, 0.35),
-	RightElbow = CFrame.Angles(0.5, 0, 0),
-}
-
 -- Sprint: forward lean, big arm pumps, high knees, a little bounce and upper-body twist.
-local function runPose(phase: number, amount: number): Pose
+local function runPose(phase: number, amount: number, bank: number): Pose
 	local s = math.sin(phase)
 	local c = math.cos(phase)
 	return {
-		Root = CFrame.new(0, 0.18 * math.abs(s) - 0.08, 0) * CFrame.Angles(-0.25, s * 0.08, 0),
+		Root = CFrame.Angles(0, 0, bank)
+			* CFrame.new(0, 0.18 * math.abs(s) - 0.08, 0)
+			* CFrame.Angles(-0.25, s * 0.08, 0),
 		Waist = CFrame.Angles(-0.08, -s * 0.25 * amount, 0),
-		Neck = CFrame.Angles(0.22, s * 0.12, 0),
+		Neck = CFrame.Angles(0.22, s * 0.12, -bank * 0.5),
 		LeftHip = CFrame.Angles(s * 0.95 * amount, 0, 0),
 		RightHip = CFrame.Angles(-s * 0.95 * amount, 0, 0),
 		-- A knee bends most while its leg swings forward.
@@ -92,6 +91,44 @@ local function runPose(phase: number, amount: number): Pose
 		RightShoulder = CFrame.Angles(s * 0.9 * amount, 0, 0.08),
 		LeftElbow = CFrame.Angles(1.1 + 0.25 * s, 0, 0),
 		RightElbow = CFrame.Angles(1.1 - 0.25 * s, 0, 0),
+	}
+end
+
+-- Feet-first slide: body dropped low and leaning back, lead leg out, back leg tucked, one hand
+-- trailing on the ground, the other arm up for balance. Leans into steering.
+local function slidePose(t: number, bank: number): Pose
+	local sway = math.sin(t * 9) * 0.06
+	return {
+		Root = CFrame.Angles(0, 0, bank * 1.4) * CFrame.new(0, -1.1, 0) * CFrame.Angles(1.15, 0, 0),
+		Waist = CFrame.Angles(-0.35, 0, bank * 0.4),
+		Neck = CFrame.Angles(-0.5, 0, -bank * 0.6),
+		RightHip = CFrame.Angles(0.25, 0, 0),
+		RightKnee = CFrame.Angles(-0.1, 0, 0),
+		LeftHip = CFrame.Angles(0.75, 0, -0.15),
+		LeftKnee = CFrame.Angles(-1.6, 0, 0),
+		LeftShoulder = CFrame.Angles(-0.7 + sway, 0, -0.7),
+		LeftElbow = CFrame.Angles(0.3, 0, 0),
+		RightShoulder = CFrame.Angles(1.8 - sway, 0, 0.35),
+		RightElbow = CFrame.Angles(0.5 + sway, 0, 0),
+	}
+end
+
+-- Launched: arms windmilling, legs kicking, back arched.
+local function flailPose(phase: number): Pose
+	local s = math.sin(phase * 0.8)
+	local c = math.cos(phase * 0.8)
+	return {
+		Root = CFrame.Angles(0.3, 0, 0),
+		Waist = CFrame.Angles(0.25 + 0.1 * s, 0, 0),
+		Neck = CFrame.Angles(0.35, 0.3 * s, 0),
+		LeftShoulder = CFrame.Angles(phase, 0, -1.1),
+		RightShoulder = CFrame.Angles(math.pi - phase, 0, 1.1),
+		LeftElbow = CFrame.Angles(0.4 + 0.3 * c, 0, 0),
+		RightElbow = CFrame.Angles(0.4 - 0.3 * c, 0, 0),
+		LeftHip = CFrame.Angles(0.3 + 0.7 * s, 0, -0.25),
+		RightHip = CFrame.Angles(0.3 - 0.7 * s, 0, 0.25),
+		LeftKnee = CFrame.Angles(-0.8 - 0.5 * c, 0, 0),
+		RightKnee = CFrame.Angles(-0.8 + 0.5 * c, 0, 0),
 	}
 end
 
@@ -131,29 +168,21 @@ local function toJointSpace(joint: Joint, pose: CFrame): CFrame
 	return joint.inverse * pose * joint.rotation
 end
 
-local function makeDust(root: BasePart, humanoid: Humanoid): (Attachment, ParticleEmitter)
-	local groundOffset = if humanoid.RigType == Enum.HumanoidRigType.R6
-		then -3
-		else -(root.Size.Y / 2 + humanoid.HipHeight)
-	local attachment = Instance.new("Attachment")
-	attachment.Name = "SlideDust"
-	attachment.Position = Vector3.new(0, groundOffset + 0.3, 0)
+local function flatUnit(vector: Vector3): Vector3
+	local flat = Vector3.new(vector.X, 0, vector.Z)
+	return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zero
+end
 
-	local dust = Instance.new("ParticleEmitter")
-	dust.Texture = DUST_TEXTURE
-	dust.Color = ColorSequence.new(Color3.fromRGB(225, 220, 210))
-	dust.Transparency = NumberSequence.new(0.35, 1)
-	dust.Size = NumberSequence.new(0.8, 2.6)
-	dust.Lifetime = NumberRange.new(0.35, 0.6)
-	dust.Rate = 45
-	dust.Speed = NumberRange.new(2, 5)
-	dust.SpreadAngle = Vector2.new(35, 35)
-	dust.EmissionDirection = Enum.NormalId.Back
-	dust.Acceleration = Vector3.new(0, 3, 0)
-	dust.Enabled = false
-	dust.Parent = attachment
+local function approach(current: number, goal: number, rate: number, dt: number): number
+	return current + (goal - current) * math.min(1, rate * dt)
+end
+
+local function attachmentAt(root: BasePart, name: string, y: number): Attachment
+	local attachment = Instance.new("Attachment")
+	attachment.Name = name
+	attachment.Position = Vector3.new(0, y, 0)
 	attachment.Parent = root
-	return attachment, dust
+	return attachment
 end
 
 local function addCharacter(character: Model, isLocal: boolean)
@@ -165,7 +194,46 @@ local function addCharacter(character: Model, isLocal: boolean)
 	if not character.Parent then
 		return
 	end
-	local dustAttachment, dust = makeDust(root, humanoid)
+
+	local ground = if humanoid.RigType == Enum.HumanoidRigType.R6 then -3 else -(root.Size.Y / 2 + humanoid.HipHeight)
+
+	local dustAttachment = attachmentAt(root, "SlideDust", ground + 0.3)
+	local dust = Instance.new("ParticleEmitter")
+	dust.Texture = DUST_TEXTURE
+	dust.Color = ColorSequence.new(Color3.fromRGB(225, 220, 210))
+	dust.Transparency = NumberSequence.new(0.35, 1)
+	dust.Size = NumberSequence.new(0.8, 2.8)
+	dust.Lifetime = NumberRange.new(0.35, 0.6)
+	dust.Rate = 50
+	dust.Speed = NumberRange.new(2, 6)
+	dust.SpreadAngle = Vector2.new(35, 35)
+	dust.EmissionDirection = Enum.NormalId.Back
+	dust.Acceleration = Vector3.new(0, 3, 0)
+	dust.Enabled = false
+	dust.Parent = dustAttachment
+
+	-- A ribbon from the feet to the waist that streaks behind you while sliding or flying.
+	local low = attachmentAt(root, "TrailLow", ground + 0.3)
+	local high = attachmentAt(root, "TrailHigh", ground + 1.9)
+	local trail = Instance.new("Trail")
+	trail.Attachment0 = low
+	trail.Attachment1 = high
+	trail.Lifetime = 0.3
+	trail.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(170, 210, 255))
+	trail.Transparency = NumberSequence.new(0.5, 1)
+	trail.LightEmission = 0.6
+	trail.Enabled = false
+	trail.Parent = root
+
+	local wind = Sfx.make(Config.Sounds.SlideLoop, root, 0, 1.3)
+	if wind then
+		wind.Looped = true
+	end
+	local extras: { Instance } = { dustAttachment, low, high, trail }
+	if wind then
+		table.insert(extras, wind)
+	end
+
 	rigs[character] = {
 		character = character,
 		humanoid = humanoid,
@@ -175,22 +243,42 @@ local function addCharacter(character: Model, isLocal: boolean)
 		isLocal = isLocal,
 		run = 0,
 		slide = 0,
+		flail = 0,
 		phase = 0,
-		dustAttachment = dustAttachment,
+		flailPhase = 0,
+		bank = 0,
+		lastLook = Vector3.zero,
+		wasSliding = false,
 		dust = dust,
+		trail = trail,
+		wind = wind,
+		extras = extras,
 	}
 end
 
 local function removeCharacter(character: Model)
 	local rig = rigs[character]
 	if rig then
-		rig.dustAttachment:Destroy()
+		for _, instance in rig.extras do
+			instance:Destroy()
+		end
 		rigs[character] = nil
 	end
 end
 
-local function approach(current: number, goal: number, rate: number, dt: number): number
-	return current + (goal - current) * math.min(1, rate * dt)
+local function updateEffects(rig: Rig, speed: number)
+	rig.dust.Enabled = rig.slide > 0.5
+	rig.trail.Enabled = rig.slide > 0.5 or (rig.flail > 0.5 and speed > 25)
+	local wind = rig.wind
+	if wind then
+		local volume = 0.6 * rig.slide + 0.4 * rig.flail
+		wind.Volume = volume
+		if volume > 0.02 and not wind.IsPlaying then
+			wind:Play()
+		elseif volume <= 0.02 and wind.IsPlaying then
+			wind:Stop()
+		end
+	end
 end
 
 local function updateRig(rig: Rig, dt: number)
@@ -206,14 +294,30 @@ local function updateRig(rig: Rig, dt: number)
 		isSliding = rig.character:GetAttribute("Sliding") == true
 		isDown = rig.character:GetAttribute("Down") == true
 	end
+	if isSliding and not rig.wasSliding then
+		Sfx.playAt(Config.Sounds.SlideStart, root.Position, 0.7, 0.8)
+	end
+	rig.wasSliding = isSliding
+
 	local velocity = root.AssemblyLinearVelocity
 	local speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-	local running = not isSliding and not isDown and speed > 2.5 and math.abs(velocity.Y) < 12
+	local flailing = isDown or velocity.Y < FALLING_FLAIL_SPEED
+	local running = not isSliding and not flailing and speed > 2.5 and math.abs(velocity.Y) < 12
 
 	rig.run = approach(rig.run, if running then 1 else 0, 10, dt)
-	rig.slide = approach(rig.slide, if isSliding and not isDown then 1 else 0, 14, dt)
-	rig.dust.Enabled = rig.slide > 0.5
-	if rig.run < 0.01 and rig.slide < 0.01 then
+	rig.slide = approach(rig.slide, if isSliding and not flailing then 1 else 0, 14, dt)
+	rig.flail = approach(rig.flail, if flailing then 1 else 0, 12, dt)
+	updateEffects(rig, speed)
+
+	-- Lean into turns: how fast the character is turning, smoothed.
+	local look = flatUnit(root.CFrame.LookVector)
+	if dt > 0 and rig.lastLook ~= Vector3.zero and look ~= Vector3.zero then
+		local turnRate = math.asin(math.clamp(rig.lastLook:Cross(look).Y, -1, 1)) / dt
+		rig.bank = approach(rig.bank, math.clamp(turnRate * Config.Animation.TurnLean, -0.4, 0.4), 8, dt)
+	end
+	rig.lastLook = look
+
+	if rig.run < 0.01 and rig.slide < 0.01 and rig.flail < 0.01 then
 		return -- leave the normal Roblox animations alone
 	end
 
@@ -225,19 +329,24 @@ local function updateRig(rig: Rig, dt: number)
 	if running then
 		rig.phase = (rig.phase + dt * math.min(speed, 40) * Config.Animation.RunStrideRate) % TAU
 	end
-	local amount = math.clamp(speed / 16, 0.4, 1.2) * Config.Animation.RunAmount
-	local run = runPose(rig.phase, amount)
+	if flailing then
+		rig.flailPhase = (rig.flailPhase + dt * FLAIL_SPEED) % TAU
+	end
 
+	local amount = math.clamp(speed / 16, 0.4, 1.2) * Config.Animation.RunAmount
+	local layers: { { pose: Pose, weight: number } } = {
+		{ pose = runPose(rig.phase, amount, rig.bank), weight = rig.run },
+		{ pose = slidePose(now, rig.bank), weight = rig.slide },
+		{ pose = flailPose(rig.flailPhase), weight = rig.flail },
+	}
 	for name, joint in rig.joints do
 		-- Transform already holds this frame's normal animation; blend our poses over it.
 		local transform = joint.motor.Transform
-		local runTarget = run[name]
-		if runTarget and rig.run > 0.01 then
-			transform = transform:Lerp(toJointSpace(joint, runTarget), rig.run)
-		end
-		local slideTarget = SLIDE_POSE[name]
-		if slideTarget and rig.slide > 0.01 then
-			transform = transform:Lerp(toJointSpace(joint, slideTarget), rig.slide)
+		for _, layer in layers do
+			local target = layer.pose[name]
+			if target and layer.weight > 0.01 then
+				transform = transform:Lerp(toJointSpace(joint, target), layer.weight)
+			end
 		end
 		joint.motor.Transform = transform
 	end

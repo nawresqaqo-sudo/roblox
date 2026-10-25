@@ -18,20 +18,33 @@ Whoever slid into someone last gets the KO when they fall.
 
 ## What's in it
 
-- **Custom run animation:** a forward-leaning sprint with big arm pumps and high knees.
-- **Slide animation:** a feet-first baseball slide, low to the ground, with a dust trail.
-- Both animations are made in code, so there's nothing to upload and everyone sees them on
-  everyone. Works on R15 (full body) and R6 (arms, legs and body only).
-- Lower camera and a wider field of view while you slide.
-- **KOs on the leaderboard:** falling into the void counts as a KO for the last person who hit you
-  (within 8 seconds).
+**Animations** (made in code, so there's nothing to upload and everyone sees them on everyone;
+full body on R15, arms/legs/body on R6):
+- **Sprint:** forward lean, big arm pumps, high knees, bounce, leaning into turns.
+- **Slide:** feet-first, low to the ground, one hand trailing, leaning as you steer.
+- **Flail:** arms windmilling and legs kicking while you fly after getting hit (or fall).
+
+**Feel:**
+- Dust, a speed streak and wind sound behind every slider; anime speed lines on your screen.
+- Lower camera and wider view while sliding.
+- Hits: shockwave, sparks, a comic word (POW! BAM! YEET!...), a thud, screen shake and an FOV kick.
+
+**Gameplay:**
+- **Clashes:** two players sliding head-on. Clearly faster wins and launches the other; otherwise
+  both bounce off.
+- **KOs and streaks** on the leaderboard. Falling into the void counts as a KO for the last person
+  who hit you (within 8 seconds). Your streak resets when you go down.
+- **KO feed** (top right) and big popups: "KNOCKED OFF SAM!", "DOUBLE KO!", "RAMPAGE!"...
+- "Hold to slide" hint for new players, gone after 3 slides.
 - **Safe zone:** slide hits don't count on the spawn rooftop.
 - **Test dummies** on the main rooftop that come back after being knocked off.
 
 ## Getting it into Roblox Studio
 
 **Quick test:** open `build/RooftopChaos.rbxl` in Studio (File > Open from File) and press Play.
-It has a spawn rooftop, a bridge, the main rooftop and three dummies.
+It has a spawn rooftop, a bridge, a main rooftop with cover to slide around (stairwell, AC units,
+crates, water tank), glowing edges so you can see the drop, a sunset city skyline far below, and
+three dummies.
 
 **Into your own Rooftop Chaos place:**
 
@@ -51,7 +64,8 @@ It has a spawn rooftop, a bridge, the main rooftop and three dummies.
 ## Tuning
 
 Everything is in `src/shared/Config.luau`: slide speed, length, steering, cooldown and hitbox;
-knockback strength and lift; how long you tumble; KO credit time; run animation speed and size.
+knockback strength and lift; how long you tumble; clash rules; KO credit time; animation speed,
+size and turn lean; and the sound ids (built-in Roblox sounds by default; add a KO "ding" there).
 
 The poses themselves (how far the arms swing, how low the slide goes) are at the top of
 `src/client/Controllers/CharacterAnimator.luau`.
@@ -67,8 +81,11 @@ src/server/   -> ServerScriptService.Server
   Util/SafeZones           "is this spot in a safe zone?"
 src/client/   -> StarterPlayerScripts.Client
   Controllers/SlideController    hold-to-slide input, slide movement, hit detection, getting launched
-  Controllers/CharacterAnimator  the run and slide animations for every character
-  Controllers/HitEffects         the burst where a slide connects
+  Controllers/CharacterAnimator  sprint, slide and flail animations, trails, wind sound
+  Controllers/CameraFx           camera drop, FOV and shake (one place so they don't fight)
+  Controllers/HitEffects         what a hit looks and sounds like
+  Controllers/Hud                hint, speed lines, KO feed and popups
+  Util/Sfx                       sound helper
 ```
 
 Your own game client spots slide hits for a snappy feel. The server double-checks each one (were
@@ -76,5 +93,5 @@ you actually sliding, are you close enough, is the target in a safe zone) before
 
 ## Not in yet
 
-Sounds, a KO message on screen, and a way to block or dodge a slide. If you'd rather use animations
-made in Eclipse or Moon Animator than the coded ones, that's an easy swap.
+Rounds or a timer, a way to block or dodge a slide, and saving stats between sessions. If you'd
+rather use animations made in Eclipse or Moon Animator than the coded ones, that's an easy swap.

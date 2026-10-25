@@ -71,6 +71,12 @@ local function flatten(vector: Vector3): Vector3
 	return Vector3.new(vector.X, 0, vector.Z)
 end
 
+-- How hard a slide at `slideSpeed` launches someone (horizontal part only).
+local function launchPower(slideSpeed: number): number
+	local knockback = Config.Knockback
+	return math.min(knockback.Base + slideSpeed * knockback.PerSlideSpeed, knockback.Max)
+end
+
 local function setSliding(player: Player, state: State, sliding: boolean)
 	state.sliding = sliding
 	if not sliding then
@@ -158,7 +164,7 @@ local function onSlideHit(player: Player, target: unknown)
 		return
 	end
 	local character = player.Character
-	if not character or target == character then
+	if not character or target == character or character:GetAttribute("Down") or target:GetAttribute("Down") then
 		return
 	end
 
@@ -188,11 +194,30 @@ local function onSlideHit(player: Player, target: unknown)
 		then slideVelocity.Unit
 		elseif away.Magnitude > 0.1 then away.Unit
 		else flatten(root.CFrame.LookVector).Unit
-	local knockback = Config.Knockback
-	local power = math.min(knockback.Base + slideVelocity.Magnitude * knockback.PerSlideSpeed, knockback.Max)
+	local lift = Vector3.new(0, Config.Knockback.Lift, 0)
 
-	SlideService.launch(target, direction * power + Vector3.new(0, knockback.Lift, 0), player)
-	Net.remote("SlideImpact"):FireAllClients(targetRoot.Position, direction)
+	-- Head-on with another slider: the clearly faster one wins, otherwise both bounce off.
+	local targetPlayer = Players:GetPlayerFromCharacter(target)
+	local targetState = if targetPlayer then states[targetPlayer] else nil
+	local targetVelocity = flatten(targetRoot.AssemblyLinearVelocity)
+	if targetPlayer and targetState and targetState.sliding and targetVelocity:Dot(direction) < -5 then
+		local mySpeed, theirSpeed = slideVelocity.Magnitude, targetVelocity.Magnitude
+		local margin = Config.Clash.WinMargin
+		if theirSpeed > mySpeed * margin then
+			SlideService.launch(character, -direction * launchPower(theirSpeed) + lift, targetPlayer)
+			Net.remote("SlideImpact"):FireAllClients(root.Position, -direction, "Hit")
+			return
+		elseif mySpeed <= theirSpeed * margin then
+			local bounce = Config.Clash.BouncePower
+			SlideService.launch(character, -direction * bounce + lift * 0.6, targetPlayer)
+			SlideService.launch(target, direction * bounce + lift * 0.6, player)
+			Net.remote("SlideImpact"):FireAllClients((root.Position + targetRoot.Position) / 2, direction, "Clash")
+			return
+		end
+	end
+
+	SlideService.launch(target, direction * launchPower(slideVelocity.Magnitude) + lift, player)
+	Net.remote("SlideImpact"):FireAllClients(targetRoot.Position, direction, "Hit")
 end
 
 function SlideService.init()

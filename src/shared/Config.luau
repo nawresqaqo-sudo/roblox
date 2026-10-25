@@ -20,10 +20,23 @@ return {
 		DownTime = 1.2, -- seconds the victim tumbles before getting up
 		SameTargetCooldown = 0.6,
 	},
+	-- Two players sliding into each other head-on.
+	Clash = {
+		WinMargin = 1.15, -- you need this much more speed than the other slider to win
+		BouncePower = 60, -- an even clash bounces both players back this hard
+	},
 	-- Seconds after a hit that falling off still counts as the hitter's KO.
 	KnockoutCreditTime = 8,
 	Animation = {
 		RunStrideRate = 0.55, -- run cycle speed per stud/s of movement
 		RunAmount = 1, -- size of the arm and leg swings (0.5 = subtle, 1.3 = wild)
+		TurnLean = 0.07, -- how much characters lean into turns
+	},
+	-- Built-in Roblox sounds by default. Swap in any sound id ("rbxassetid://123"), or "" for silence.
+	Sounds = {
+		SlideStart = "rbxasset://sounds/action_jump.mp3",
+		SlideLoop = "rbxasset://sounds/action_falling.mp3",
+		Impact = "rbxasset://sounds/action_jump_land.mp3",
+		Knockout = "", -- plays for you when you get a KO
 	},
 }
