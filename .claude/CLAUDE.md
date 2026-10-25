@@ -1,14 +1,18 @@
 # Project notes
 
-- Roblox game: JJS-style anime battlegrounds (Naruto / One Piece / JJK). Luau, `--!strict` everywhere.
-- Rojo 7.4 project: `default.project.json` (code only, for `rojo serve`), `testplace.project.json`
-  (code + baseplate, builds `build/AnimeBattlegrounds.rbxl`). Rebuild the .rbxl after code changes.
+- Roblox game "Rooftop Chaos": spawn rooftop/island + main rooftop; players hold to slide into each
+  other to knock them off (like Chaos Valley). Luau, `--!strict` everywhere.
+- The previous anime battlegrounds prototype was dropped at the user's request (still in git history).
+- Rojo 7.4 project: `default.project.json` (code only, for `rojo serve` into the user's place),
+  `testplace.project.json` (code + rooftop test map, builds `build/RooftopChaos.rbxl`; regenerate the
+  .rbxl after code changes). Rojo needs the explicit `{"CFrame": {...}}` form for CFrame properties.
 - One Script (`src/server/init.server.luau`) and one LocalScript (`src/client/init.client.luau`);
   both load modules with two-phase init()/start().
-- Server-authoritative combat: `Systems/CombatService` validates and runs `Movesets/<Char>` move
-  functions; VFX are client-side via the `PlayVfx` remote (`Vfx.play("<Module>.<Effect>", payload)`).
-- Character data and balance numbers live in `src/shared/Characters/<Char>.luau`.
-- User authors animations in Eclipse Animator (ids go in AnimationId) and VFX with a Studio plugin
-  (assets go in ReplicatedStorage.Assets.VFX by effect name).
+- Run and slide animations are procedural (Motor6D.Transform set in RunService.Stepped on every
+  client for every character), not uploaded assets. Slide state replicates via the `Sliding` attribute.
+- Slide hits: detected by the slider's client, validated by `SlideService`; players are launched by
+  their own client (`Knockback` remote), NPCs by the server.
+- Map hooks: Workspace folders `SafeZones` and `DummySpawns`; void = FallenPartsDestroyHeight + 25.
+- All tunables in `src/shared/Config.luau`.
 - Checks: `stylua src`, `rojo sourcemap default.project.json -o sourcemap.json`, then
   `luau-lsp analyze --platform=roblox --definitions=@roblox=globalTypes.d.luau --sourcemap=sourcemap.json src`.

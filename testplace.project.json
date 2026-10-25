@@ -1,20 +1,37 @@
 {
-  "name": "AnimeBattlegrounds",
+  "name": "RooftopChaos",
   "tree": {
     "$className": "DataModel",
     "Workspace": {
       "$className": "Workspace",
-      "Baseplate": {
+      "$properties": {
+        "FallenPartsDestroyHeight": 0
+      },
+      "SpawnRoof": {
         "$className": "Part",
         "$properties": {
           "Anchored": true,
-          "Locked": true,
-          "Size": [512, 16, 512],
-          "Color": [0.36, 0.55, 0.28],
-          "Material": "Grass",
+          "Size": [60, 4, 60],
+          "Color": [0.62, 0.62, 0.65],
+          "Material": "Concrete",
           "CFrame": {
             "CFrame": {
-              "position": [0, -8, 0],
+              "position": [0, 98, 0],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "SpawnBuilding": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [56, 90, 56],
+          "Color": [0.55, 0.33, 0.28],
+          "Material": "Brick",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 51, 0],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           }
@@ -24,17 +41,179 @@
         "$className": "SpawnLocation",
         "$properties": {
           "Anchored": true,
-          "Size": [12, 1, 12],
+          "Size": [10, 1, 10],
           "Color": [0.95, 0.55, 0.15],
-          "Neutral": true,
-          "Duration": 0,
+          "Material": "SmoothPlastic",
           "CFrame": {
             "CFrame": {
-              "position": [0, 0.5, 0],
+              "position": [0, 100.5, 0],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "Neutral": true,
+          "Duration": 0
+        }
+      },
+      "Bridge": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [6, 1, 44],
+          "Color": [0.6, 0.45, 0.3],
+          "Material": "WoodPlanks",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 99.5, -52],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           }
         }
+      },
+      "MainRoof": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [110, 4, 110],
+          "Color": [0.42, 0.42, 0.46],
+          "Material": "Concrete",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 98, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "MainBuilding": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [106, 90, 106],
+          "Color": [0.55, 0.33, 0.28],
+          "Material": "Brick",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 51, -129],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "AirConditionerA": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [8, 5, 6],
+          "Color": [0.8, 0.8, 0.82],
+          "Material": "Metal",
+          "CFrame": {
+            "CFrame": {
+              "position": [28, 102.5, -112],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "AirConditionerB": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [6, 5, 8],
+          "Color": [0.8, 0.8, 0.82],
+          "Material": "Metal",
+          "CFrame": {
+            "CFrame": {
+              "position": [-32, 102.5, -152],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          }
+        }
+      },
+      "SafeZones": {
+        "$className": "Folder",
+        "SpawnSafeZone": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "CanCollide": false,
+            "CanQuery": false,
+            "CanTouch": false,
+            "Transparency": 1,
+            "Size": [60, 30, 60],
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 115, 0],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            }
+          }
+        }
+      },
+      "DummySpawns": {
+        "$className": "Folder",
+        "DummySpawnA": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "CanCollide": false,
+            "CanQuery": false,
+            "CanTouch": false,
+            "Transparency": 1,
+            "Size": [2, 1, 2],
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 100.5, -112],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            }
+          }
+        },
+        "DummySpawnB": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "CanCollide": false,
+            "CanQuery": false,
+            "CanTouch": false,
+            "Transparency": 1,
+            "Size": [2, 1, 2],
+            "CFrame": {
+              "CFrame": {
+                "position": [-22, 100.5, -140],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            }
+          }
+        },
+        "DummySpawnC": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "CanCollide": false,
+            "CanQuery": false,
+            "CanTouch": false,
+            "Transparency": 1,
+            "Size": [2, 1, 2],
+            "CFrame": {
+              "CFrame": {
+                "position": [24, 100.5, -165],
+                "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              }
+            }
+          }
+        }
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "ClockTime": 17.2
+      }
+    },
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "RespawnTime": 2
       }
     },
     "ReplicatedStorage": {

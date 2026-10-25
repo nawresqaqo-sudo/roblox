@@ -6,7 +6,7 @@ local RunService = game:GetService("RunService")
 local Remotes = require(script.Parent.Remotes)
 
 -- Unusual name on purpose so it never collides with a "Remotes" folder already in the place.
-local FOLDER_NAME = "BattlegroundsRemotes"
+local FOLDER_NAME = "RooftopRemotes"
 
 local Net = {}
 

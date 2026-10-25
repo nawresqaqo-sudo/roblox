@@ -1,99 +1,80 @@
-# Anime Battlegrounds (prototype)
+# Rooftop Chaos
 
-A JJS-style battlegrounds game with characters from Naruto, One Piece and Jujutsu Kaisen.
-Right now it has **Teen Naruto** (5 moves), a character select screen, a move hotbar and
-training dummies.
+Spawn on a safe rooftop, cross to the main rooftop, and **slide into people to knock them off**.
+Whoever slid into someone last gets the KO when they fall.
 
 ## Controls
 
-| Key | Move | Type |
-| --- | --- | --- |
-| 1 | Rasengan: dash with a chakra sphere, knocks the target away | Normal |
-| 2 | Shadow Clone Jutsu: 3 clones run at the nearest enemy and punch | Normal |
-| 3 | Double Rasengan: a clone joins in, two hits back to back | Normal |
-| 4 | Giant Rasengan: charge a huge sphere with a clone, then ram it | Secondary ult |
-| 5 | Rasenshuriken: quick cutscene, throw, shredding dome | Big ult |
+| Platform | Slide |
+| --- | --- |
+| Mobile | Hold anywhere on the screen (not the joystick or jump button) |
+| PC | Hold left mouse button, or hold C |
+| Controller | Hold R2 |
 
-Tap the hotbar slots on mobile. The **CHARACTERS** button (top left) reopens the select screen.
+- Hold to keep sliding (up to 2.5 s). It slows down over time; let go to get up.
+- Steer a little while sliding with the joystick or WASD.
+- Jump out of a slide to keep your speed.
+- Sliding into someone launches them. Faster slide = bigger launch.
+
+## What's in it
+
+- **Custom run animation:** a forward-leaning sprint with big arm pumps and high knees.
+- **Slide animation:** a feet-first baseball slide, low to the ground, with a dust trail.
+- Both animations are made in code, so there's nothing to upload and everyone sees them on
+  everyone. Works on R15 (full body) and R6 (arms, legs and body only).
+- Lower camera and a wider field of view while you slide.
+- **KOs on the leaderboard:** falling into the void counts as a KO for the last person who hit you
+  (within 8 seconds).
+- **Safe zone:** slide hits don't count on the spawn rooftop.
+- **Test dummies** on the main rooftop that come back after being knocked off.
 
 ## Getting it into Roblox Studio
 
-**Quick test:** open `build/AnimeBattlegrounds.rbxl` in Studio (File > Open from File) and press
-Play. It's a baseplate with everything already in it.
+**Quick test:** open `build/RooftopChaos.rbxl` in Studio (File > Open from File) and press Play.
+It has a spawn rooftop, a bridge, the main rooftop and three dummies.
 
-**Sync into your own place (recommended for ongoing work):**
+**Into your own Rooftop Chaos place:**
 
-1. Install the Rojo plugin in Studio (Creator Store: "Rojo") and the Rojo 7.4 command line tool
-   from https://github.com/rojo-rbx/rojo/releases.
-2. Clone this repo, open a terminal in it, and run `rojo serve`.
-3. In Studio, open the Rojo plugin and click **Connect**. The code shows up in
-   `ServerScriptService > Server`, `ReplicatedStorage > Shared` and
-   `StarterPlayerScripts > Client`.
-
-Edit the code in the repo, not in Studio, because Rojo overwrites synced scripts. Use a fresh
-Baseplate place rather than the old Steal an Egg place so the two games' scripts don't clash.
-
-## Adding your animations (Eclipse / Moon Animator)
-
-1. Animate on an R15 rig and publish the animation to Roblox.
-2. Copy the animation id into `AnimationId` for that move in
-   `src/shared/Characters/Naruto.luau` (a bare number like `1234567890` works too).
-   The clones' punch animation goes in `Tuning.ShadowClone.PunchAnimationId`.
-
-Animations only play in games owned by the same account or group that published them.
-
-## Adding your VFX (Sine VFX or any plugin)
-
-Every effect has a built-in look made of parts. To replace one, build your effect in Studio and
-put it in **ReplicatedStorage > Assets > VFX** with one of these exact names:
-
-| Name | Kind | Used by |
-| --- | --- | --- |
-| `Rasengan` | held, follows the hand | moves 1 and 3 |
-| `GiantRasengan` | held, in front of the player | move 4 |
-| `Rasenshuriken` | held over the shoulder, then flies | move 5 |
-| `RasenshurikenExplosion` | burst | move 5 |
-| `Impact` | burst | every hit |
-| `Smoke` | burst | clones appearing and vanishing |
-
-Held effects are moved every frame. For burst effects, every ParticleEmitter inside gets
-`:Emit(20)`; set an `EmitCount` attribute on an emitter to change that number. The `Assets`
-folder lives outside the Rojo-synced folders, so Rojo leaves it alone.
+1. Install the Rojo plugin in Studio (Creator Store: "Rojo") and Rojo 7.4 from
+   https://github.com/rojo-rbx/rojo/releases.
+2. Clone this repo, open a terminal in it, run `rojo serve`, then click **Connect** in the Rojo
+   plugin. The code goes into `ServerScriptService > Server`, `ReplicatedStorage > Shared` and
+   `StarterPlayerScripts > Client`. Your map and other scripts are left alone.
+3. Set up your map:
+   - **Void:** set `Workspace > FallenPartsDestroyHeight` somewhere below your islands. Anyone who
+     falls 25 studs above that height is knocked out.
+   - **Safe zone (optional):** make a Folder in Workspace named `SafeZones`. Put a big part inside it
+     covering the spawn island, with Transparency 1, CanCollide off and Anchored on.
+   - **Test dummies (optional):** make a Folder in Workspace named `DummySpawns` and put small
+     invisible parts in it where dummies should stand.
 
 ## Tuning
 
-- Damage, cooldown and timing for every move: `src/shared/Characters/Naruto.luau`
-- Dummy health, regen and positions: `src/shared/Config.luau`
-- Naruto's look (colors, or real Marketplace clothes and hair ids): `src/server/Movesets/Naruto/Outfit.luau`
-- Where held effects sit and the cutscene camera shots: top of `src/client/Vfx/Naruto.luau`
+Everything is in `src/shared/Config.luau`: slide speed, length, steering, cooldown and hitbox;
+knockback strength and lift; how long you tumble; KO credit time; run animation speed and size.
+
+The poses themselves (how far the arms swing, how low the slide goes) are at the top of
+`src/client/Controllers/CharacterAnimator.luau`.
 
 ## How it fits together
 
 ```text
-src/shared/   -> ReplicatedStorage.Shared   roster, move data, remotes
+src/shared/   -> ReplicatedStorage.Shared       Config (all numbers), remotes
 src/server/   -> ServerScriptService.Server
-  Systems/      CharacterService (select + outfit), CombatService (runs moves), DummyService
-  Combat/       hitboxes, damage, knockback, clones, animation and VFX helpers
-  Movesets/     one folder per character: its moves and outfit
+  Systems/SlideService     who's sliding, checks slide hits, launches the victim
+  Systems/KnockoutService  leaderboard, void, KO credit
+  Systems/DummyService     test dummies
+  Util/SafeZones           "is this spot in a safe zone?"
 src/client/   -> StarterPlayerScripts.Client
-  Controllers/  character select screen, move hotbar, VFX player
-  Vfx/          effects per character (Common = shared ones)
-  Util/         UI builder, VFX helpers, cutscene camera
+  Controllers/SlideController    hold-to-slide input, slide movement, hit detection, getting launched
+  Controllers/CharacterAnimator  the run and slide animations for every character
+  Controllers/HitEffects         the burst where a slide connects
 ```
 
-The server owns everything that matters (cooldowns, hitboxes, damage). The client only sends
-"use move N" and draws effects when the server says so.
-
-**Adding a character:** copy `src/shared/Characters/Naruto.luau` (info and tuning), add it to the
-list in `Characters/init.luau`, add `src/server/Movesets/<Name>/` with its moves and outfit,
-register it in `Movesets/init.luau`, and add `src/client/Vfx/<Name>.luau` for its effects.
-
-## Before you publish
-
-Using official names like Naruto or Rasengan in a public game can get it taken down. Most big
-battlegrounds games rename their characters for this reason.
+Your own game client spots slide hits for a snappy feel. The server double-checks each one (were
+you actually sliding, are you close enough, is the target in a safe zone) before anyone gets launched.
 
 ## Not in yet
 
-M1 combos, blocking, an ult meter (ults use plain cooldowns for now), being hit interrupting your
-move, sounds, and character portraits.
+Sounds, a KO message on screen, and a way to block or dodge a slide. If you'd rather use animations
+made in Eclipse or Moon Animator than the coded ones, that's an easy swap.
