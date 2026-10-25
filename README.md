@@ -1,5 +1,8 @@
 # Rooftop Chaos
 
+> This repo also holds **Characters Test** (an anime character arena, starting with Onigashima
+> Zoro) in [`characters-test/`](characters-test/README.md).
+
 Spawn on a safe rooftop, cross to the main rooftop, and **slide into people to knock them off**.
 Whoever slid into someone last gets the KO when they fall.
 

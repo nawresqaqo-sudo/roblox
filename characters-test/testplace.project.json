@@ -1,0 +1,389 @@
+{
+  "name": "CharactersTest",
+  "tree": {
+    "$className": "DataModel",
+    "Workspace": {
+      "$className": "Workspace",
+      "Arena": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [420, 4, 420],
+          "Color": [0.36, 0.34, 0.33],
+          "Material": "Slate",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, -2, 0],
+              "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+            }
+          }
+        }
+      },
+      "Ring": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [0.2, 150, 150],
+          "Color": [0.24, 0.22, 0.22],
+          "Material": "Slate",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 0.05, 0],
+              "orientation": [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+            }
+          },
+          "Shape": "Cylinder",
+          "CanCollide": false
+        }
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "Size": [12, 1, 12],
+          "Color": [0.3, 0.75, 0.42],
+          "Material": "SmoothPlastic",
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 0.5, 40],
+              "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+            }
+          },
+          "Neutral": true,
+          "Duration": 0
+        }
+      },
+      "Pillars": {
+        "$className": "Model",
+        "Pillar0": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 28, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [150.0, 14.0, 0.0],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "Pillar1": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 38, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [121.35, 19.0, 88.17],
+                "orientation": [[0.809, 0, 0.5878], [0, 1, 0], [-0.5878, 0, 0.809]]
+              }
+            }
+          }
+        },
+        "Pillar2": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 48, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [46.35, 24.0, 142.66],
+                "orientation": [[0.309, 0, 0.9511], [0, 1, 0], [-0.9511, 0, 0.309]]
+              }
+            }
+          }
+        },
+        "Pillar3": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 28, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [-46.35, 14.0, 142.66],
+                "orientation": [[-0.309, 0, 0.9511], [0, 1, 0], [-0.9511, 0, -0.309]]
+              }
+            }
+          }
+        },
+        "Pillar4": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 38, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [-121.35, 19.0, 88.17],
+                "orientation": [[-0.809, 0, 0.5878], [0, 1, 0], [-0.5878, 0, -0.809]]
+              }
+            }
+          }
+        },
+        "Pillar5": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 48, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [-150.0, 24.0, 0.0],
+                "orientation": [[-1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, -1.0]]
+              }
+            }
+          }
+        },
+        "Pillar6": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 28, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [-121.35, 14.0, -88.17],
+                "orientation": [[-0.809, 0, -0.5878], [0, 1, 0], [0.5878, 0, -0.809]]
+              }
+            }
+          }
+        },
+        "Pillar7": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 38, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [-46.35, 19.0, -142.66],
+                "orientation": [[-0.309, 0, -0.9511], [0, 1, 0], [0.9511, 0, -0.309]]
+              }
+            }
+          }
+        },
+        "Pillar8": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 48, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [46.35, 24.0, -142.66],
+                "orientation": [[0.309, 0, -0.9511], [0, 1, 0], [0.9511, 0, 0.309]]
+              }
+            }
+          }
+        },
+        "Pillar9": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [9, 28, 9],
+            "Color": [0.24, 0.22, 0.22],
+            "Material": "Rock",
+            "CFrame": {
+              "CFrame": {
+                "position": [121.35, 14.0, -88.17],
+                "orientation": [[0.809, 0, -0.5878], [0, 1, 0], [0.5878, 0, 0.809]]
+              }
+            }
+          }
+        }
+      },
+      "ToriiNorth": {
+        "$className": "Model",
+        "PostL": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [3, 34, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [-16, 17, -170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "PostR": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [3, 34, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [16, 17, -170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "Kasagi": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [46, 3, 5],
+            "Color": [0.1, 0.09, 0.09],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 35.5, -170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "Nuki": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [38, 2, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 28, -170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        }
+      },
+      "ToriiSouth": {
+        "$className": "Model",
+        "PostL": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [3, 34, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [-16, 17, 170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "PostR": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [3, 34, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [16, 17, 170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "Kasagi": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [46, 3, 5],
+            "Color": [0.1, 0.09, 0.09],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 35.5, 170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        },
+        "Nuki": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Size": [38, 2, 3],
+            "Color": [0.72, 0.12, 0.1],
+            "Material": "SmoothPlastic",
+            "CFrame": {
+              "CFrame": {
+                "position": [0, 28, 170],
+                "orientation": [[1.0, 0, 0.0], [0, 1, 0], [-0.0, 0, 1.0]]
+              }
+            }
+          }
+        }
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "ClockTime": 17.8,
+        "Brightness": 2.4
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.3,
+          "Offset": 0.1,
+          "Haze": 1.6,
+          "Glare": 0.6,
+          "Color": [0.9, 0.62, 0.5],
+          "Decay": [0.55, 0.32, 0.3]
+        }
+      },
+      "Sky": {
+        "$className": "Sky",
+        "$properties": {
+          "CelestialBodiesShown": true,
+          "StarCount": 3000
+        }
+      }
+    },
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "RespawnTime": 3
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    }
+  }
+}
