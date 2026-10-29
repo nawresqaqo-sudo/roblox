@@ -4,6 +4,7 @@ local CombatTypes = require(script.Parent.Combat.CombatTypes)
 
 local Movesets: { [string]: CombatTypes.Moveset } = {
 	Zoro = require(script.Zoro),
+	Sasuke = require(script.Sasuke),
 }
 
 return Movesets

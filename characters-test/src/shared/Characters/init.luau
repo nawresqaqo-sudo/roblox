@@ -1,6 +1,6 @@
 --!strict
 -- The character roster, in the order the select screen shows it.
--- To add a character: copy Zoro.luau, add it to LIST, and add a server moveset in
+-- To add a character: copy Zoro.luau or Sasuke.luau, add it to LIST, and add a server moveset in
 -- ServerScriptService > Server > Movesets.
 local Types = require(script.Parent.Types)
 
@@ -19,6 +19,7 @@ end
 
 local LIST: { Types.CharacterInfo } = {
 	require(script.Zoro).Info,
+	require(script.Sasuke).Info,
 	comingSoon("Luffy", "Luffy", "One Piece", Color3.fromRGB(220, 45, 45)),
 	comingSoon("Sanji", "Sanji", "One Piece", Color3.fromRGB(240, 200, 70)),
 	comingSoon("Kaido", "Kaido", "One Piece", Color3.fromRGB(150, 110, 220)),

@@ -21,6 +21,13 @@ local function dress(player: Player)
 	if not moveset or not character then
 		return
 	end
+	-- Take off the last character's outfit first (each outfit is a Model named "<Id>Outfit").
+	for _, info in Characters.List do
+		local old = character:FindFirstChild(info.Id .. "Outfit")
+		if old then
+			old:Destroy()
+		end
+	end
 	local ok, err = pcall(moveset.applyOutfit :: any, character)
 	if not ok then
 		warn(`[CharacterService] outfit for {id} failed: {err}`)

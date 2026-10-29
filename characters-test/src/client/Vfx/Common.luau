@@ -1,10 +1,12 @@
 --!strict
--- Effects any character can use: smoke poofs, hit bursts, camera shake and damage numbers.
+-- Effects any character can use: smoke poofs, hit bursts, camera shake, damage numbers and flinches.
 -- Each one can be replaced by a custom effect named Smoke / Impact in ReplicatedStorage > Assets > VFX.
 local Debris = game:GetService("Debris")
 
 local Ui = require(script.Parent.Parent.Util.Ui)
 local VfxUtil = require(script.Parent.Parent.Util.VfxUtil)
+local MoveAnimator = require(script.Parent.Parent.Controllers.MoveAnimator)
+local Clips = require(script.Parent.Parent.Animations.Common)
 
 local SMOKE_LIGHT = Color3.fromRGB(240, 240, 240)
 local SMOKE_DARK = Color3.fromRGB(185, 185, 190)
@@ -99,6 +101,11 @@ end
 function Common.DamageNumber(payload: VfxUtil.Payload): (() -> ())?
 	local position = payload.position :: Vector3
 	local amount = payload.amount :: number
+	-- Whoever got hit flinches (harder if the hit stunned or launched them), unless they're mid-move.
+	local target = payload.target
+	if typeof(target) == "Instance" and target:IsA("Model") and not MoveAnimator.isBusy(target) then
+		MoveAnimator.play(target, if payload.heavy then Clips.FlinchHeavy else Clips.Flinch)
+	end
 	local start = position + Vector3.new((math.random() - 0.5) * 2, 0, (math.random() - 0.5) * 2)
 	local anchor = VfxUtil.part({
 		size = Vector3.one * 0.1,
