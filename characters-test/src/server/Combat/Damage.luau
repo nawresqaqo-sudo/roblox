@@ -31,11 +31,16 @@ function Damage.deal(target: Model, amount: number, options: HitOptions?)
 	end
 	humanoid:TakeDamage(amount)
 
+	local opts: HitOptions = options or {}
 	local root = Hitbox.rootOf(target)
 	local position = if root then root.Position else target:GetPivot().Position
-	Vfx.play("Common.DamageNumber", { position = position + Vector3.new(0, 2.5, 0), amount = amount })
+	Vfx.play("Common.DamageNumber", {
+		position = position + Vector3.new(0, 2.5, 0),
+		amount = amount,
+		target = target,
+		heavy = (opts.stun or 0) > 0 or opts.knockback ~= nil,
+	})
 
-	local opts: HitOptions = options or {}
 	if opts.stun and opts.stun > 0 then
 		Damage.stun(target, opts.stun)
 	end

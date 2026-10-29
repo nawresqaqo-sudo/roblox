@@ -21,6 +21,7 @@ local BAR_HEIGHT = 0.12
 local Cutscene = {}
 
 local playing = false
+local finishCurrent: (() -> ())? = nil
 
 local function showBars(title: string?, titleAt: number): () -> ()
 	local player = Players.LocalPlayer
@@ -86,6 +87,13 @@ function Cutscene.isPlaying(): boolean
 	return playing
 end
 
+-- Ends the playing cutscene now (e.g. the move was interrupted) and hands the camera back.
+function Cutscene.stop()
+	if finishCurrent then
+		finishCurrent()
+	end
+end
+
 -- Plays the shots back to back, then hands the camera back to the player.
 function Cutscene.play(shots: { Shot }, title: string?)
 	if playing or #shots == 0 then
@@ -121,7 +129,9 @@ function Cutscene.play(shots: { Shot }, title: string?)
 		end
 		hideBars()
 		playing = false
+		finishCurrent = nil
 	end
+	finishCurrent = finish
 
 	RunService:BindToRenderStep(BIND_NAME, Enum.RenderPriority.Camera.Value + 1, function()
 		local elapsed = os.clock() - start

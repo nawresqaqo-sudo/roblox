@@ -1,8 +1,8 @@
 --!strict
 -- Anime-style effect pieces: bright, glossy and sharp instead of chunky. Crescent slashes with a white
--- core and a colored glow, speed streaks, glossy flashes and shockwaves, lightning, impact frames,
--- a blacked-out sky, afterimages, outlines, haki auras, screen speed lines and flying debris.
--- Everything is built on this client only.
+-- core and a colored glow, speed streaks, glossy flashes, shockwaves and rings, lightning and crackling
+-- bolts, impact frames, a blacked-out sky, afterimages, outlines, haki auras, screen speed lines and
+-- flying debris. Everything is built on this client only.
 local Debris = game:GetService("Debris")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
@@ -220,6 +220,44 @@ function AnimeFx.shockwave(cframe: CFrame, color: Color3, size: number, duration
 	Debris:AddItem(rim, d + 0.1)
 end
 
+export type RingOptions = {
+	from: number, -- radius when it starts
+	to: number, -- radius when it ends
+	color: Color3?,
+	thickness: number?, -- how wide the band is
+	duration: number?,
+	transparency: number?, -- how see-through it starts
+	style: Enum.EasingStyle?,
+	hold: boolean?, -- stay as it started instead of fading out
+}
+
+-- A flat band with a hole in the middle that grows (or shrinks to a point) and fades. The cframe's Y axis
+-- is the ring's normal. Returns a function that removes it early.
+function AnimeFx.ring(cframe: CFrame, options: RingOptions): () -> ()
+	local duration = options.duration or 0.4
+	local thickness = options.thickness or 0.6
+	local start = options.transparency or 0
+	local style = options.style or Enum.EasingStyle.Quad
+	local anchor = VfxUtil.part({ size = Vector3.one * 0.2, color = WHITE, transparency = 1, cframe = cframe })
+	local band = Instance.new("CylinderHandleAdornment")
+	band.Adornee = anchor
+	band.CFrame = CFrame.Angles(math.pi / 2, 0, 0) -- adornment cylinders run along Z; this lays it flat
+	band.Height = 0.08
+	band.Color3 = options.color or WHITE
+	band.Transparency = start
+	band.Parent = anchor
+	return VfxUtil.everyFrame(duration, function(t)
+		local alpha = TweenService:GetValue(math.min(t / duration, 1), style, Enum.EasingDirection.Out)
+		local radius = math.max(options.from + (options.to - options.from) * alpha, 0.05)
+		band.Radius = radius
+		band.InnerRadius = math.max(radius - thickness, 0)
+		band.Transparency = if options.hold then start else start + (1 - start) * math.min(t / duration, 1) ^ 1.5
+		return true
+	end, function()
+		anchor:Destroy()
+	end)
+end
+
 -- A jagged bolt from `from` to `to` with a white core.
 function AnimeFx.lightning(from: Vector3, to: Vector3, color: Color3, width: number?, duration: number?)
 	local w = width or 0.4
@@ -255,6 +293,289 @@ function AnimeFx.lightning(from: Vector3, to: Vector3, color: Color3, width: num
 		)
 	end
 	VfxUtil.fadeOut(parts, d)
+end
+
+-- Crackling electricity ----------------------------------------------------------------------------
+
+-- A fixed point, or a function giving a point that moves (nil ends the bolt).
+export type BoltPoint = Vector3 | () -> Vector3?
+
+export type BoltOptions = {
+	color: Color3?, -- the glow around the core
+	core: Color3?,
+	width: number?, -- core width; the glow is three times as wide
+	jitter: number?, -- how far it wanders sideways, as a fraction of its length
+	segments: number?,
+	branches: number?, -- short forks off the main bolt
+	duration: number?,
+	flicker: number?, -- times a second it changes shape (0 keeps one shape)
+	draw: number?, -- seconds to draw it from start to end instead of appearing all at once
+	dark: boolean?, -- a black core with a colored edge
+}
+
+local ELECTRIC = Color3.fromRGB(110, 185, 255)
+local OBSIDIAN = Color3.fromRGB(12, 9, 18)
+
+-- A line of beams through a list of points: a core inside a glow three times as wide, tapering to a tip.
+type Strand = {
+	set: (points: { Vector3 }) -> (),
+	style: (fade: number, thin: number, shown: number) -> (),
+	destroy: () -> (),
+}
+
+local function strand(count: number, width: number, color: Color3, core: Color3, dark: boolean): Strand
+	local attachments: { Attachment } = {}
+	for i = 1, count do
+		attachments[i] = worldAttachment()
+	end
+	local glows: { Beam } = {}
+	local cores: { Beam } = {}
+	for i = 1, count - 1 do
+		local glow = beam(attachments[i], attachments[i + 1], color, true)
+		glow.Segments = 1
+		local inner = beam(attachments[i], attachments[i + 1], core, not dark)
+		inner.Segments = 1
+		inner.ZOffset = 0.2 -- drawn over the glow
+		inner.Brightness = if dark then 1 else 2
+		glows[i] = glow
+		cores[i] = inner
+	end
+	local segments = count - 1
+	-- Full width for the first 60%, then narrowing to a point.
+	local function taper(f: number): number
+		return 1 - math.max(0, f - 0.6) / 0.4 * 0.85
+	end
+	return {
+		set = function(points: { Vector3 })
+			for i, attachment in attachments do
+				attachment.WorldPosition = points[i] or attachment.WorldPosition
+			end
+		end,
+		style = function(fade: number, thin: number, shown: number)
+			local glowFade = NumberSequence.new(0.45 + 0.55 * fade)
+			local coreFade = NumberSequence.new(fade)
+			for i = 1, segments do
+				local a, b = taper((i - 1) / segments) * thin, taper(i / segments) * thin
+				local glow, inner = glows[i], cores[i]
+				glow.Enabled = i <= shown
+				inner.Enabled = i <= shown
+				glow.Width0, glow.Width1 = width * 3 * a, width * 3 * b
+				inner.Width0, inner.Width1 = width * a, width * b
+				glow.Transparency = glowFade
+				inner.Transparency = coreFade
+			end
+		end,
+		destroy = function()
+			for _, attachment in attachments do
+				attachment:Destroy()
+			end
+		end,
+	}
+end
+
+local function resolve(point: BoltPoint): Vector3?
+	if typeof(point) == "Vector3" then
+		return point
+	end
+	return (point :: () -> Vector3?)()
+end
+
+-- Two directions at right angles to `axis` (and to each other).
+local function perpendiculars(axis: Vector3): (Vector3, Vector3)
+	local side = axis:Cross(if math.abs(axis.Y) < 0.95 then Vector3.yAxis else Vector3.xAxis).Unit
+	return side, side:Cross(axis)
+end
+
+-- How far each inner point of a jagged line strays sideways (as fractions of the line's length).
+local function wander(count: number, jitter: number): { Vector2 }
+	local offsets: { Vector2 } = {}
+	for i = 1, count - 2 do
+		local angle = math.random() * math.pi * 2
+		local reach = jitter * (0.35 + math.random() * 0.65) * math.min(1, math.sin(i / (count - 1) * math.pi) * 1.6)
+		offsets[i] = Vector2.new(math.cos(angle), math.sin(angle)) * reach
+	end
+	return offsets
+end
+
+-- Lays the points of a jagged line from `a` to `b` into `out` (#out points), using `offsets` from wander.
+local function layout(
+	a: Vector3,
+	b: Vector3,
+	offsets: { Vector2 },
+	out: { Vector3 }
+): (Vector3, Vector3, Vector3, number)
+	local count = #out
+	local offset = b - a
+	local length = offset.Magnitude
+	local axis = if length > 1e-3 then offset / length else Vector3.yAxis
+	local side, up = perpendiculars(axis)
+	for i = 1, count do
+		local o = offsets[i - 1]
+		local straight = a + offset * ((i - 1) / (count - 1))
+		out[i] = if o and i < count then straight + (side * o.X + up * o.Y) * length else straight
+	end
+	return axis, side, up, length
+end
+
+local function boltFade(t: number, duration: number): number
+	return math.clamp((t / duration - 0.45) / 0.55, 0, 1)
+end
+
+local function boltShown(t: number, draw: number, segments: number): number
+	return if draw > 0 then math.clamp(math.ceil(t / draw * segments), 1, segments) else segments
+end
+
+-- A crackling bolt: a bright core inside a colored glow, with forks, changing shape many times a second
+-- like real electricity. The ends can be functions so it stays attached to moving things.
+-- Returns a function that ends it early.
+function AnimeFx.bolt(from: BoltPoint, to: BoltPoint, options: BoltOptions?): () -> ()
+	local opts: BoltOptions = options or {}
+	local count = math.max(opts.segments or 7, 3) + 1
+	local width = opts.width or 0.3
+	local jitter = opts.jitter or 0.12
+	local duration = opts.duration or 0.2
+	local flicker = opts.flicker or 18
+	local draw = opts.draw or 0
+	local dark = opts.dark == true
+	local color = opts.color or ELECTRIC
+	local core = opts.core or (if dark then OBSIDIAN else WHITE)
+
+	type Fork = { at: number, angle: number, spin: number, reach: number, line: Strand, offsets: { Vector2 } }
+	local main = strand(count, width, color, core, dark)
+	local offsets = wander(count, jitter)
+	local forks: { Fork } = {}
+	for _ = 1, opts.branches or 0 do
+		table.insert(forks, {
+			at = math.random(2, count - 1),
+			angle = math.rad(25 + math.random() * 35),
+			spin = math.random() * math.pi * 2,
+			reach = 0.2 + math.random() * 0.25,
+			line = strand(4, width * 0.55, color, core, dark),
+			offsets = wander(4, jitter * 1.4),
+		})
+	end
+
+	local lastShape = 0
+	local points: { Vector3 } = table.create(count, Vector3.zero)
+	local forkPoints: { Vector3 } = table.create(4, Vector3.zero)
+	return VfxUtil.everyFrame(duration, function(t)
+		local a, b = resolve(from), resolve(to)
+		if not a or not b then
+			return false
+		end
+		if flicker > 0 and t - lastShape >= 1 / flicker then
+			lastShape = t
+			offsets = wander(count, jitter)
+			for _, fork in forks do
+				fork.offsets = wander(4, jitter * 1.4)
+				fork.spin = math.random() * math.pi * 2
+			end
+		end
+		local axis, side, up, length = layout(a, b, offsets, points)
+		main.set(points)
+
+		local fade = boltFade(t, duration)
+		local shown = boltShown(t, draw, count - 1)
+		main.style(fade, 1 - 0.5 * fade, shown)
+		for _, fork in forks do
+			local start = points[fork.at]
+			local direction = axis * math.cos(fork.angle)
+				+ (side * math.cos(fork.spin) + up * math.sin(fork.spin)) * math.sin(fork.angle)
+			layout(start, start + direction * length * fork.reach, fork.offsets, forkPoints)
+			fork.line.set(forkPoints)
+			fork.line.style(fade, 1 - 0.5 * fade, if fork.at <= shown then 3 else 0)
+		end
+		return true
+	end, function()
+		main.destroy()
+		for _, fork in forks do
+			fork.line.destroy()
+		end
+	end)
+end
+
+export type CrackleOptions = {
+	duration: number,
+	count: number?, -- how many arcs at once
+	segments: number?,
+	width: number?,
+	color: Color3?, -- glow
+	altColor: Color3?, -- every other arc glows this color instead
+	core: Color3?,
+	flicker: number?, -- times a second the arcs jump to new places
+	chance: number?, -- how likely each arc is to be lit after a jump (0-1)
+}
+
+-- Short arcs that keep jumping to new places around a moving frame of reference: lightning in a fist,
+-- electricity crawling over a body, flickers inside a storm cloud. `space` says where that frame is
+-- (nil ends it) and `pick` chooses where the next arc runs, in that frame's space. The same few bolts
+-- are reused the whole time, so it stays cheap. Returns a function that ends it early.
+function AnimeFx.crackle(space: () -> CFrame?, pick: () -> (Vector3, Vector3), options: CrackleOptions): () -> ()
+	local count = options.count or 4
+	local segments = options.segments or 4
+	local flicker = options.flicker or 24
+	local chance = options.chance or 0.7
+	local duration = options.duration
+	type Arc = { line: Strand, from: Vector3, to: Vector3, offsets: { Vector2 }, lit: boolean }
+	local arcs: { Arc } = {}
+	for i = 1, count do
+		local color = if options.altColor and i % 2 == 0 then options.altColor else options.color or ELECTRIC
+		table.insert(arcs, {
+			line = strand(segments + 1, options.width or 0.1, color, options.core or WHITE, false),
+			from = Vector3.zero,
+			to = Vector3.zero,
+			offsets = {},
+			lit = false,
+		})
+	end
+	local points: { Vector3 } = table.create(segments + 1, Vector3.zero)
+	local nextJump = 0
+	return VfxUtil.everyFrame(duration, function(t)
+		local frame = space()
+		if not frame then
+			return false
+		end
+		if t >= nextJump then
+			nextJump = t + 1 / flicker
+			for _, arc in arcs do
+				arc.lit = math.random() < chance
+				arc.from, arc.to = pick()
+				arc.offsets = wander(segments + 1, 0.22)
+			end
+		end
+		local fade = 1 - math.clamp((duration - t) / 0.15, 0, 1)
+		for _, arc in arcs do
+			layout(frame:PointToWorldSpace(arc.from), frame:PointToWorldSpace(arc.to), arc.offsets, points)
+			arc.line.set(points)
+			arc.line.style(fade, 1, if arc.lit then segments else 0)
+		end
+		return true
+	end, function()
+		for _, arc in arcs do
+			arc.line.destroy()
+		end
+	end)
+end
+
+-- A glowing line through exactly these points (spirals, glowing cracks): the same look as a bolt, but
+-- it keeps the shape it's given. Returns a function that ends it early.
+function AnimeFx.path(points: { Vector3 }, options: BoltOptions?): () -> ()
+	local opts: BoltOptions = options or {}
+	local count = #points
+	if count < 2 then
+		return function() end
+	end
+	local duration = opts.duration or 0.3
+	local draw = opts.draw or 0
+	local dark = opts.dark == true
+	local line =
+		strand(count, opts.width or 0.3, opts.color or ELECTRIC, opts.core or (if dark then OBSIDIAN else WHITE), dark)
+	line.set(points)
+	return VfxUtil.everyFrame(duration, function(t)
+		local fade = boltFade(t, duration)
+		line.style(fade, 1 - 0.5 * fade, boltShown(t, draw, count - 1))
+		return true
+	end, line.destroy)
 end
 
 -- Screen effects -----------------------------------------------------------------------------------
@@ -347,8 +668,9 @@ type SkyState = {
 local skyState: SkyState? = nil
 
 -- Turns the sky black and lights the world with `glow` (dark red by default) for `duration` seconds,
--- only on this client. Calling it again while it's dark just keeps it dark longer.
-function AnimeFx.darkSky(duration: number, tint: Color3, glow: Color3?)
+-- only on this client. `haze` colors the air (dark red by default). Calling it again while it's dark
+-- just keeps it dark longer.
+function AnimeFx.darkSky(duration: number, tint: Color3, glow: Color3?, haze: Color3?)
 	local now = os.clock()
 	if skyState then
 		skyState.untilTime = math.max(skyState.untilTime, now + duration)
@@ -387,8 +709,8 @@ function AnimeFx.darkSky(duration: number, tint: Color3, glow: Color3?)
 	end
 	if atmosphere then
 		atmosphere.Density = 0.45
-		atmosphere.Color = Color3.fromRGB(40, 6, 10)
-		atmosphere.Decay = Color3.fromRGB(20, 0, 4)
+		atmosphere.Color = haze or Color3.fromRGB(40, 6, 10)
+		atmosphere.Decay = if haze then haze:Lerp(Color3.new(0, 0, 0), 0.5) else Color3.fromRGB(20, 0, 4)
 		atmosphere.Haze = 0
 	end
 

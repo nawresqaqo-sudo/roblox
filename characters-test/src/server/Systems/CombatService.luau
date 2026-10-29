@@ -13,7 +13,9 @@ local Movesets = require(script.Parent.Parent.Movesets)
 local MAX_REQUESTS_PER_SECOND = 8
 
 type PlayerState = {
-	cooldowns: { [number]: number }, -- slot -> os.clock() when it's ready again
+	-- character id -> slot -> os.clock() when it's ready again. Per character, so switching characters
+	-- can't be used to skip a cooldown and the hotbar always matches.
+	cooldowns: { [string]: { [number]: number } },
 	busy: boolean,
 	windowStart: number,
 	requestCount: number,
@@ -61,8 +63,11 @@ local function onUseMove(player: Player, slot: unknown)
 	end
 
 	local characterId = CharacterService.getSelected(player)
-	local info = characterId and Characters.ById[characterId]
-	local moveset = characterId and Movesets[characterId]
+	if not characterId then
+		return
+	end
+	local info = Characters.ById[characterId]
+	local moveset = Movesets[characterId]
 	if not info or not moveset then
 		return
 	end
@@ -81,16 +86,25 @@ local function onUseMove(player: Player, slot: unknown)
 
 	local now = os.clock()
 	local stunnedUntil = character:GetAttribute("StunnedUntil")
-	if state.busy or (state.cooldowns[slot] or 0) > now then
+	local cooldowns = state.cooldowns[characterId]
+	if not cooldowns then
+		cooldowns = {}
+		state.cooldowns[characterId] = cooldowns
+	end
+	if state.busy or (cooldowns[slot] or 0) > now then
 		return
 	end
 	if typeof(stunnedUntil) == "number" and stunnedUntil > now then
 		return
 	end
 
-	state.cooldowns[slot] = now + moveInfo.Cooldown
+	cooldowns[slot] = now + moveInfo.Cooldown
 	state.busy = true
-	local accepted: Types.MoveAccepted = { Slot = slot, EndsAt = workspace:GetServerTimeNow() + moveInfo.Cooldown }
+	local accepted: Types.MoveAccepted = {
+		Character = characterId,
+		Slot = slot,
+		EndsAt = workspace:GetServerTimeNow() + moveInfo.Cooldown,
+	}
 	Net.remote("MoveAccepted"):FireClient(player, accepted)
 
 	local ctx: CombatTypes.MoveContext = {

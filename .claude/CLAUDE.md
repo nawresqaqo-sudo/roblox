@@ -18,7 +18,12 @@
 - Checks: `stylua src`, `rojo sourcemap default.project.json -o sourcemap.json`, then
   `luau-lsp analyze --platform=roblox --definitions=@roblox=globalTypes.d.luau --sourcemap=sourcemap.json src`.
 - `characters-test/` is a separate Rojo project (own default/testplace project files, `tools/build_map.py`,
-  `build/CharactersTest.rbxl`): JJS-style arena, Zoro (Onigashima) with 5 moves. Coded keyframe clips
-  (`Controllers/MoveAnimator`, `Animations/<Char>`), client swords (`Controllers/Swords`), anime VFX
-  pieces in `Util/AnimeFx`. Run the same checks from inside that folder. Plugin bridges: `src/dev/ExportAnimations`
-  (ServerStorage.Dev; clips -> KeyframeSequences in a rig's AnimSaves) and named VFX slots in `Vfx/Zoro`.
+  `build/CharactersTest.rbxl`): JJS-style arena, Zoro (Onigashima, 5 moves) and Sasuke (Taka, 4 moves).
+  Coded keyframe clips (`Controllers/MoveAnimator`, `Animations/<Char>`), client swords (`Controllers/Swords`),
+  anime VFX pieces in `Util/AnimeFx`. Run the same checks from inside that folder, plus
+  `python3 tools/check_effects.py`. Plugin bridges: `src/dev/ExportAnimations` (ServerStorage.Dev; every
+  character's clips -> KeyframeSequences in a rig's AnimSaves) and named VFX slots in `Vfx/Zoro`, `Vfx/Sasuke/Kit`.
+- Sasuke's client VFX is a folder module (`Vfx/Sasuke/init.luau` gathers one module per move; `Kit` = palette,
+  sounds, helpers). Sounds: cue ids in `Shared.Characters.Sasuke.Sounds` ("" = built-in stand-in via `Util/Sfx`;
+  only rbxasset character sounds are verified to exist). Cooldowns are per character; outfits are Models named
+  `<Id>Outfit`.

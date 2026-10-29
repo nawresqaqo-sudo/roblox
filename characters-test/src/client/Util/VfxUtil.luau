@@ -21,6 +21,30 @@ export type PartProps = {
 	cframe: CFrame?,
 }
 
+export type EmitterProps = {
+	texture: string,
+	color: ColorSequence,
+	size: NumberSequence,
+	lifetime: NumberRange,
+	transparency: NumberSequence?,
+	speed: NumberRange?,
+	rate: number?, -- particles a second; 0 for bursts you Emit() yourself
+	spread: Vector2?,
+	acceleration: Vector3?,
+	drag: number?,
+	lightEmission: number?,
+	brightness: number?,
+	rotation: NumberRange?,
+	rotSpeed: NumberRange?,
+	zOffset: number?, -- higher draws in front of other emitters
+	lockedToPart: boolean?,
+	direction: Enum.NormalId?,
+	shape: Enum.ParticleEmitterShape?,
+	shapeInOut: Enum.ParticleEmitterShapeInOut?,
+	orientation: Enum.ParticleOrientation?,
+	squash: NumberSequence?,
+}
+
 local VfxUtil = {}
 
 local folder: Folder? = nil
@@ -74,6 +98,45 @@ function VfxUtil.tween(
 	local tween = TweenService:Create(instance, info, goals)
 	tween:Play()
 	return tween
+end
+
+-- A ParticleEmitter that ignores scene lighting, so effects look the same at noon and at night.
+function VfxUtil.emitter(parent: Instance, props: EmitterProps): ParticleEmitter
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = props.texture
+	emitter.Color = props.color
+	emitter.Size = props.size
+	emitter.Lifetime = props.lifetime
+	emitter.Transparency = props.transparency or NumberSequence.new(0, 1)
+	emitter.Speed = props.speed or NumberRange.new(0)
+	emitter.Rate = props.rate or 0
+	emitter.SpreadAngle = props.spread or Vector2.new(180, 180)
+	emitter.Acceleration = props.acceleration or Vector3.zero
+	emitter.Drag = props.drag or 0
+	emitter.LightEmission = props.lightEmission or 0
+	emitter.LightInfluence = 0
+	emitter.Brightness = props.brightness or 1
+	emitter.Rotation = props.rotation or NumberRange.new(0, 360)
+	emitter.RotSpeed = props.rotSpeed or NumberRange.new(0)
+	emitter.ZOffset = props.zOffset or 0
+	emitter.LockedToPart = props.lockedToPart == true
+	emitter.EmissionDirection = props.direction or Enum.NormalId.Top
+	emitter.Shape = props.shape or Enum.ParticleEmitterShape.Box
+	emitter.ShapeInOut = props.shapeInOut or Enum.ParticleEmitterShapeInOut.Outward
+	emitter.Orientation = props.orientation or Enum.ParticleOrientation.FacingCamera
+	if props.squash then
+		emitter.Squash = props.squash
+	end
+	emitter.Parent = parent
+	return emitter
+end
+
+-- Emits `count` particles once from `cframe` (filling `size` if given) and cleans up after them.
+function VfxUtil.burst(cframe: CFrame, props: EmitterProps, count: number, size: Vector3?)
+	local holder = VfxUtil.part({ size = size or Vector3.one * 0.2, color = Color3.new(1, 1, 1), transparency = 1 })
+	holder.CFrame = cframe
+	VfxUtil.emitter(holder, props):Emit(count)
+	Debris:AddItem(holder, props.lifetime.Max + 0.3)
 end
 
 -- Fades parts out (optionally scaling them) and deletes them.
