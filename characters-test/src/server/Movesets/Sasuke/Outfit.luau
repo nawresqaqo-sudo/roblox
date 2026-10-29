@@ -311,7 +311,7 @@ local function buildBelt(outfit: Model, waist: BasePart)
 	)
 
 	-- Kusanagi: across the small of his back, hilt up and to the right.
-	local sword = CFrame.new(0, s.Y * 0.2, s.Z * 0.75) * CFrame.Angles(0, 0, math.rad(-22))
+	local sword = CFrame.new(0, s.Y * 0.2, s.Z * 0.75) * CFrame.Angles(0, 0, math.rad(22))
 	addPiece(
 		outfit,
 		waist,

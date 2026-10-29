@@ -1,23 +1,23 @@
 --!strict
--- Turns Zoro's coded animations into real KeyframeSequences, so you can open, polish and publish them
--- in Eclipse Animator, Moon Animator or Roblox's Animation Editor.
+-- Turns every character's coded animations (Client > Animations: Zoro, Sasuke, and the Common flinches)
+-- into real KeyframeSequences, so you can open, polish and publish them in Eclipse Animator, Moon
+-- Animator or Roblox's Animation Editor.
 --
 -- In Studio (edit mode, not playing), paste this into the command bar:
 --   require(game.ServerStorage.Dev.ExportAnimations)()
--- That builds an R15 rig called "ZoroAnimRig" with every clip saved in its AnimSaves. To use your own
--- R15 rig instead (e.g. from Avatar > Rig Builder), pass it in:
+-- That builds an R15 rig called "AnimRig" with every clip saved in its AnimSaves, named
+-- <Character>_<Clip> (Zoro_Onigiri, Sasuke_ChidoriThrust...). To use your own R15 rig instead (e.g. from
+-- Avatar > Rig Builder), pass it in:
 --   require(game.ServerStorage.Dev.ExportAnimations)(workspace.Rig)
 -- Then select the rig in your animation plugin, load a clip, edit it, publish it, and paste the id
--- into that move's AnimationId in ReplicatedStorage.Shared.Characters.Zoro.
+-- into that move's AnimationId in ReplicatedStorage.Shared.Characters.<Character>.
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local Client = StarterPlayer:WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 local MoveAnimator = require(Client.Controllers.MoveAnimator)
 local Rig = require(Client.Util.Rig)
-local Clips = require(Client.Animations.Zoro)
 
 local SPIN_STEP = 0.05 -- spins are written as a keyframe every this many seconds
-local PREFIX = "Zoro_"
 
 -- Clip -> the body part each joint moves, and each part's parent in the pose tree.
 local JOINT_PART: { [string]: string } = {
@@ -180,7 +180,7 @@ local RIG_PARTS: { RigPart } = {
 
 local function buildRig(origin: CFrame): Model
 	local rig = Instance.new("Model")
-	rig.Name = "ZoroAnimRig"
+	rig.Name = "AnimRig"
 	local parts: { [string]: BasePart } = {}
 	for _, spec in RIG_PARTS do
 		local part = Instance.new("Part")
@@ -246,7 +246,7 @@ end
 
 local function buildSequence(name: string, clip: MoveAnimator.Clip, joints: { [string]: Rig.Joint }): KeyframeSequence
 	local sequence = Instance.new("KeyframeSequence")
-	sequence.Name = PREFIX .. name
+	sequence.Name = name
 	sequence.Loop = false
 	sequence.Priority = Enum.AnimationPriority.Action
 
@@ -308,14 +308,21 @@ return function(existingRig: Model?): Model
 	saves.Name = "AnimSaves"
 	saves.Parent = rig
 	local count = 0
-	for name, clip in Clips :: { [string]: MoveAnimator.Clip } do
-		local old = saves:FindFirstChild(PREFIX .. name)
-		if old then
-			old:Destroy()
+	for _, module in Client.Animations:GetChildren() do
+		if not module:IsA("ModuleScript") then
+			continue
 		end
-		buildSequence(name, clip, joints).Parent = saves
-		count += 1
+		local clips: { [string]: MoveAnimator.Clip } = (require :: any)(module)
+		for clipName, clip in clips do
+			local name = `{module.Name}_{clipName}`
+			local old = saves:FindFirstChild(name)
+			if old then
+				old:Destroy()
+			end
+			buildSequence(name, clip, joints).Parent = saves
+			count += 1
+		end
 	end
-	print(`[ExportAnimations] saved {count} Zoro animations into {rig:GetFullName()}.AnimSaves`)
+	print(`[ExportAnimations] saved {count} animations into {rig:GetFullName()}.AnimSaves`)
 	return rig
 end
